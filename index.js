@@ -392,13 +392,14 @@ const express = require('express');
 const ytSearch = require('yt-search');
 const fs = require('fs');
 const path = require('path');
-
 const app = express();
 const port = process.env.PORT || 8080;
-
 const timeLimit = 7 * 24 * 60 * 60 * 1000; // مدت زمان یک هفته (میلی‌ثانیه)
 const apiKeyFile = path.join(__dirname, 'apikeyall.json'); // مسیر فایل کلیدها
 
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 // کلید پیش‌فرض
 const defaultKey = {
     "nothing-api": { limit: 100000000, used: 0, lastReset: Date.now() }
