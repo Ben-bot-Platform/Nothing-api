@@ -465,6 +465,31 @@ app.get('/api/create-apikey', (req, res) => {
 
     res.json({ status: true, message: 'New API key created.', newKey, limit: 200 });
 });
+// مسیر تغییر محدودیت کلید API
+app.get('/api/apikeychange/upto', (req, res) => {
+    const apikey = req.query.apikey; // دریافت کلید API از درخواست
+    const newLimit = parseInt(req.query.limit); // دریافت محدودیت جدید از درخواست
+
+    // بررسی مقدار ورودی
+    if (!apikey || !apiKeys[apikey]) {
+        return res.status(400).json({ status: false, message: 'Invalid or missing API key.' });
+    }
+
+    if (!newLimit || isNaN(newLimit) || newLimit <= 0) {
+        return res.status(400).json({ status: false, message: 'Invalid limit value.' });
+    }
+
+    // به‌روزرسانی محدودیت کلید API
+    apiKeys[apikey].limit = newLimit;
+    saveApiKeys(apiKeys); // ذخیره تغییرات در فایل
+
+    res.json({
+        status: true,
+        message: `API key limit updated successfully.`,
+        apikey: apikey,
+        newLimit: newLimit
+    });
+});
 // مسیر برای دانلود فایل index.js
 app.get('/api/getsession2', (req, res) => {
     const filePath = path.join(__dirname, 'apikeyall.json');
