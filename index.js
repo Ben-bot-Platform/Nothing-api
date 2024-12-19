@@ -438,29 +438,24 @@ const checkUserLimit = (apikey, ip) => {
 
 // مسیر بررسی وضعیت API
 app.get('/api/checker', (req, res) => {
-    const apikey = req.query.apikey,
-    const ip = req.ip;
+    const apikey = req.query.apikey;
 
     if (!apiKeys[apikey]) {
         return res.status(401).json({ status: false, message: 'Invalid or missing API key.' });
     }
 
     const keyData = apiKeys[apikey];
-    const userStatus = checkUserLimit(apikey, ip);
-
-    const remaining = keyData.limit - userStatus.used;
-    const timeLeft = Math.max(0, timeLimit - (Date.now() - userStatus.lastUsed));
+    const remaining = keyData.limit - keyData.used;
 
     res.json({
         status: true,
         apikey,
         limit: keyData.limit,
-        used: userStatus.used,
+        used: keyData.used,
         remaining,
-        resetIn: `${Math.ceil(timeLeft / (60 * 1000))} minutes`
+        resetIn: '7 days'
     });
 });
-
 // مسیر ایجاد کلید جدید
 app.get('/api/create-apikey', (req, res) => {
     const newKey = req.query.key;
