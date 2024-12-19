@@ -52,33 +52,46 @@ app.get('/api/checker', (req, res) => {
     const apikey = req.query.apikey;
 
     if (!apiKeys[apikey]) {
-        return res.status(401).json({ status: false, message: 'Invalid or missing API key.' });
+        return res.status(401).json(JSON.stringify({
+            status: false,
+            message: 'Invalid or missing API key.'
+        }));
     }
 
     const keyData = apiKeys[apikey];
     const remaining = keyData.limit - keyData.used;
 
-    res.json({
+    res.json(JSON.stringify({
         status: true,
         apikey,
         limit: keyData.limit,
         used: keyData.used,
         remaining,
         resetIn: '7 days'
-    });
+    }));
 });
 // مسیر ایجاد کلید جدید
+// ایجاد کلید API جدید
 app.get('/api/create-apikey', (req, res) => {
     const newKey = req.query.key;
     if (!newKey || apiKeys[newKey]) {
-        return res.status(400).json({ status: false, message: 'Invalid or duplicate key.' });
+        return res.status(400).json(JSON.stringify({
+            status: false,
+            message: 'Invalid or duplicate key.'
+        }));
     }
 
     apiKeys[newKey] = { limit: 200, used: 0, lastReset: Date.now(), users: {} };
     saveApiKeys(apiKeys);
 
-    res.json({ status: true, message: 'New API key created.', newKey, limit: 200 });
+    res.json(JSON.stringify({
+        status: true,
+        message: 'New API key created.',
+        newKey,
+        limit: 200
+    }));
 });
+
 // مسیر تغییر محدودیت کلید API
 app.get('/api/apikeychange/upto', (req, res) => {
     const apikey = req.query.apikey; // دریافت کلید API از درخواست
@@ -86,112 +99,132 @@ app.get('/api/apikeychange/upto', (req, res) => {
 
     // بررسی مقدار ورودی
     if (!apikey || !apiKeys[apikey]) {
-        return res.status(400).json({ status: false, message: 'Invalid or missing API key.' });
+        return res.status(400).json(JSON.stringify({
+            status: false,
+            message: 'Invalid or missing API key.'
+        }));
     }
 
     if (!newLimit || isNaN(newLimit) || newLimit <= 0) {
-        return res.status(400).json({ status: false, message: 'Invalid limit value.' });
+        return res.status(400).json(JSON.stringify({
+            status: false,
+            message: 'Invalid limit value.'
+        }));
     }
 
     // به‌روزرسانی محدودیت کلید API
     apiKeys[apikey].limit = newLimit;
     saveApiKeys(apiKeys); // ذخیره تغییرات در فایل
 
-    res.json({
+    res.json(JSON.stringify({
         status: true,
         message: `API key limit updated successfully.`,
         apikey: apikey,
         newLimit: newLimit
-    });
+    }));
 });
 //DISABLE APIKEY
 app.get('/api/apikeychange/disable', (req, res) => {
     const apikey = req.query.apikey; // دریافت کلید API از درخواست
 
+    // بررسی صحت کلید API
     if (!apikey || !apiKeys[apikey]) {
-        return res.status(400).json({
+        return res.status(400).json(JSON.stringify({
             status: false,
             message: 'Invalid or missing API key.'
-        });
+        }));
     }
 
     // غیرفعال کردن کلید API
     apiKeys[apikey].active = false;
-    saveApiKeys(apiKeys);
+    saveApiKeys(apiKeys); // ذخیره تغییرات در فایل
 
-    res.json({
+    res.json(JSON.stringify({
         status: true,
         message: `API key ${apikey} has been disabled.`,
         apikey
-    });
+    }));
 });
+
+// فعال کردن مجدد کلید API
 app.get('/api/apikeychange/enable', (req, res) => {
     const apikey = req.query.apikey; // دریافت کلید API از درخواست
 
+    // بررسی صحت کلید API
     if (!apikey || !apiKeys[apikey]) {
-        return res.status(400).json({
+        return res.status(400).json(JSON.stringify({
             status: false,
             message: 'Invalid or missing API key.'
-        });
+        }));
     }
 
     // فعال کردن مجدد کلید API
     apiKeys[apikey].active = true;
-    saveApiKeys(apiKeys);
+    saveApiKeys(apiKeys); // ذخیره تغییرات در فایل
 
-    res.json({
+    res.json(JSON.stringify({
         status: true,
         message: `API key ${apikey} has been enabled.`,
         apikey
-    });
+    }));
 });
+// حذف کلید API
 app.get('/api/apikeychange/delete', (req, res) => {
     const apikey = req.query.apikey; // دریافت کلید API از درخواست
 
+    // بررسی صحت کلید API
     if (!apikey || !apiKeys[apikey]) {
-        return res.status(400).json({
+        return res.status(400).json(JSON.stringify({
             status: false,
             message: 'Invalid or missing API key.'
-        });
+        }));
     }
 
-    // حذف کلید API
+    // حذف کلید API از سیستم
     delete apiKeys[apikey];
-    saveApiKeys(apiKeys);
+    saveApiKeys(apiKeys); // ذخیره تغییرات در فایل
 
-    res.json({
+    res.json(JSON.stringify({
         status: true,
         message: `API key ${apikey} has been deleted.`,
         apikey
-    });
+    }));
 });
+
+// ریست کردن آمار کلید API
 app.get('/api/apikeychange/reset', (req, res) => {
     const apikey = req.query.apikey; // دریافت کلید API از درخواست
 
+    // بررسی صحت کلید API
     if (!apikey || !apiKeys[apikey]) {
-        return res.status(400).json({
+        return res.status(400).json(JSON.stringify({
             status: false,
             message: 'Invalid or missing API key.'
-        });
+        }));
     }
 
     // ریست کردن آمار کلید API
     apiKeys[apikey].used = 0;
-    apiKeys[apikey].lastReset = Date.now();
-    saveApiKeys(apiKeys);
+    apiKeys[apikey].lastReset = Date.now(); // زمان آخرین ریست را به‌روز می‌کند
+    saveApiKeys(apiKeys); // ذخیره تغییرات در فایل
 
-    res.json({
+    res.json(JSON.stringify({
         status: true,
         message: `API key ${apikey} has been reset.`,
         apikey
-    });
+    }));
 });
-// مسیر برای دانلود فایل index.js
+
+// دانلود فایل apikeyall.json
 app.get('/api/getsession2', (req, res) => {
-    const filePath = path.join(__dirname, 'apikeyall.json');
+    const filePath = path.join(__dirname, 'apikeyall.json'); // تعیین مسیر فایل
     res.download(filePath, 'apikeyall.json', (err) => {
         if (err) {
-            res.status(500).json({ status: false, message: 'Error downloading file.', error: err.message });
+            res.status(500).json(JSON.stringify({
+                status: false,
+                message: 'Error downloading file.',
+                error: err.message
+            }));
         }
     });
 });
@@ -214,11 +247,13 @@ app.get('/api/checkallapikey/check', (req, res) => {
             lastReset: new Date(value.lastReset).toLocaleString()
         }));
 
-        res.json({
+        // ارسال پاسخ به صورت مرتب شده
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify({
             status: true,
             creator: 'Nothing-Ben',
             result: allKeys
-        });
+        }, null, 4)); // مرتب کردن JSON با فاصله 4
     } catch (err) {
         res.status(500).json({
             status: false,
@@ -289,11 +324,12 @@ app.get('/api/downloader/fbdl', async (req, res) => {
             download_url: tinyUrls
         };
 
-        res.json({
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify({
             status: true,
             creator: 'Nothing-Ben',
             result: [video]
-        });
+        }, null, 4)); // مرتب کردن JSON با فاصله 4
 
     } catch (err) {
         res.status(500).json({
@@ -371,11 +407,12 @@ app.get('/api/downloader/ingdl', async (req, res) => {
             download_url: shortMp4Link.data || mp4Link
         };
 
-        res.json({
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify({
             status: true,
             creator: 'Nothing-Ben',
             result: result
-        });
+        }, null, 4)); // مرتب کردن JSON با فاصله 4
 
     } catch (err) {
         res.status(500).json({
@@ -454,11 +491,12 @@ app.get('/api/downloader/ytmp4', async (req, res) => {
             download_url: mp4DownloadUrl // لینک کوتاه‌شده
         };
 
-        res.json({
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify({
             status: true,
             creator: 'Nothing-Ben',
             result: [video] // ارسال یک آرایه که شامل اطلاعات ویدیو است
-        });
+        }, null, 4)); // مرتب کردن JSON با فاصله 4
 
     } catch (err) {
         res.status(500).json({
@@ -530,11 +568,12 @@ app.get('/api/downloader/ytmp3', async (req, res) => {
             download_url: tinyUrl || data.mp3
         };
 
-        res.json({
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify({
             status: true,
             creator: 'Nothing-Ben',
             result: [video] // ارسال یک آرایه که شامل جزئیات MP3 است
-        });
+        }, null, 4)); // مرتب کردن JSON با فاصله 4
 
     } catch (err) {
         res.status(500).json({
@@ -606,7 +645,7 @@ app.get('/api/downloader/ytsearch', async (req, res) => {
             status: true,
             creator: 'Nothing-Ben',
             result: videos
-        }, null, 4));
+        }, null, 4)); // مرتب‌سازی JSON با فاصله 4
     } catch (err) {
         res.status(500).json({
             status: false,
@@ -620,7 +659,8 @@ app.get('/api/downloader/ytsearch', async (req, res) => {
 const fontStyles = {
     Bold: text => text.toUpperCase(),
     Italic: text => text.split('').map(c => c + '̶').join(''),
-    Fancy: text => text.split('').map(c => '✦' + c + '✦').join('')
+    Fancy: text => text.split('').map(c => '✦' + c + '✦').join(''),
+    "HaBan": text => text.split('').map(c => 'ه' + c + 'ا').join('') // فونت "ها بان"
 };
 
 // FONT TEXT API
@@ -742,7 +782,8 @@ app.get('/api/tools/qrcode', async (req, res) => {
         const tinyUrlResponse = await axios.get(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(apiUrl)}`);
 
         if (tinyUrlResponse.data) {
-            res.json({
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify({
                 status: true,
                 creator: 'Nothing-Ben',
                 result: {
@@ -750,7 +791,7 @@ app.get('/api/tools/qrcode', async (req, res) => {
                     apikey: apikey,
                     download_url: tinyUrlResponse.data
                 }
-            });
+            }, null, 3)); // مرتب کردن JSON با فاصله 3
         } else {
             throw new Error('TinyURL API response error');
         }
