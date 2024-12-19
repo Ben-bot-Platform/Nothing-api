@@ -1,1 +1,8 @@
-{}
+{
+  "nothing-api": {
+    "limit": 100000000,
+    "used": 0,
+    "lastReset": 1683456000000,
+    "users": {}
+  }
+}
