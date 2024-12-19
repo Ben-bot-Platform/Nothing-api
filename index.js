@@ -481,11 +481,38 @@ app.get('/api/getsession2', (req, res) => {
 app.get('/doc', (req, res) => {
     res.redirect('https://nothing-api-4n7g.onrender.com');
 });
+// مسیر برای دریافت تمام API keyها
+app.get('/api/checkallapikey/check', (req, res) => {
+    try {
+        // خواندن فایل و دریافت کلیدها
+        const apiKeysData = JSON.parse(fs.readFileSync(apiKeyFile));
+
+        // قالب‌بندی اطلاعات
+        const allKeys = Object.entries(apiKeysData).map(([key, value]) => ({
+            apikey: key,
+            limit: value.limit,
+            used: value.used,
+            remaining: value.limit - value.used,
+            lastReset: new Date(value.lastReset).toLocaleString()
+        }));
+
+        res.json({
+            status: true,
+            creator: 'Nothing-Ben',
+            result: allKeys
+        });
+    } catch (err) {
+        res.status(500).json({
+            status: false,
+            message: 'Error reading API keys file.',
+            error: err.message
+        });
+    }
+});
 /// SEARCH YOUTUBE API with API key validation and user limit check
 app.get('/api/downloader/ytsearch', async (req, res) => {
-    const apikey = req.query.apikey,
-    const query = req.query.text;
-    const ip = req.ip;
+    const apikey = req.query.apikey; // دریافت کلید API از درخواست
+    const query = req.query.text; // دریافت query از درخواست
 
     // بررسی کلید API و محدودیت‌های آن
     if (!apikey || !apiKeys[apikey]) {
@@ -497,7 +524,7 @@ app.get('/api/downloader/ytsearch', async (req, res) => {
     }
 
     const keyData = apiKeys[apikey];
-    const userStatus = checkUserLimit(apikey, ip);
+    const userStatus = checkUserLimit(apikey); // حذف ip از اینجا
 
     // بررسی استفاده از محدودیت
     if (userStatus.used >= keyData.limit) {
@@ -528,6 +555,7 @@ app.get('/api/downloader/ytsearch', async (req, res) => {
             .slice(0, 3) // انتخاب 3 ویدیو
             .map(video => ({
                 type: "video",
+                apikey: apikey,
                 videoId: video.videoId,
                 url: video.url,
                 title: video.title,
@@ -552,7 +580,6 @@ app.get('/api/downloader/ytsearch', async (req, res) => {
         });
     }
 });
-
 // راه‌اندازی سرور
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
