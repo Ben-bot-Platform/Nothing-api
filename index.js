@@ -421,19 +421,16 @@ const saveApiKeys = (apiKeys) => {
 let apiKeys = loadApiKeys();
 
 // تابع بررسی یا ایجاد وضعیت برای کاربر
-const checkUserLimit = (apikey, ip) => {
-    if (!apiKeys[apikey].users) apiKeys[apikey].users = {};
-    if (!apiKeys[apikey].users[ip]) {
-        apiKeys[apikey].users[ip] = { used: 0, lastUsed: Date.now() };
+const checkUserLimit = (apikey) => {
+    const apiKeyData = apiKeys[apikey];
+    
+    // اگر زمان بازنشانی گذشته باشد، مقدار `used` صفر می‌شود
+    if (Date.now() - apiKeyData.lastReset > timeLimit) {
+        apiKeyData.used = 0;
+        apiKeyData.lastReset = Date.now();
     }
 
-    // بازنشانی درخواست‌ها اگر بیشتر از یک هفته گذشته باشد
-    if (apikey !== "nothing-api" && Date.now() - apiKeys[apikey].users[ip].lastUsed > timeLimit) {
-        apiKeys[apikey].users[ip].used = 0;
-        apiKeys[apikey].users[ip].lastUsed = Date.now();
-    }
-
-    return apiKeys[apikey].users[ip];
+    return apiKeyData;
 };
 
 // مسیر بررسی وضعیت API
@@ -519,19 +516,18 @@ app.get('/api/downloader/ytsearch', async (req, res) => {
         return res.status(401).json({
             status: false,
             creator: 'Nothing-Ben',
-            message: 'Invalid or missing API key.'
+            result: 'Invalid or missing API key.'
         });
     }
 
-    const keyData = apiKeys[apikey];
-    const userStatus = checkUserLimit(apikey); // حذف ip از اینجا
+    const keyData = checkUserLimit(apikey);
 
     // بررسی استفاده از محدودیت
-    if (userStatus.used >= keyData.limit) {
+    if (keyData.used >= keyData.limit) {
         return res.status(403).json({
             status: false,
             creator: 'Nothing-Ben',
-            message: 'Limit exceeded for this key.'
+            result: 'Limit exceeded for this key.'
         });
     }
 
@@ -540,11 +536,12 @@ app.get('/api/downloader/ytsearch', async (req, res) => {
         return res.status(400).json({
             status: false,
             creator: 'Nothing-Ben',
-            message: 'No search query provided.'
+            result: 'No search query provided.'
         });
     }
 
-    userStatus.used += 1;
+    // افزایش مقدار `used` و ذخیره‌سازی
+    keyData.used += 1;
     saveApiKeys(apiKeys); // ذخیره وضعیت کلیدها
 
     try {
@@ -555,7 +552,7 @@ app.get('/api/downloader/ytsearch', async (req, res) => {
             .slice(0, 3) // انتخاب 3 ویدیو
             .map(video => ({
                 type: "video",
-                apikey: apikey,
+                apikey: apikey, // افزودن کلید API به نتیجه
                 videoId: video.videoId,
                 url: video.url,
                 title: video.title,
@@ -565,12 +562,13 @@ app.get('/api/downloader/ytsearch', async (req, res) => {
                 author: video.author.name
             }));
 
+        // ارسال JSON مرتب‌شده
         res.setHeader('Content-Type', 'application/json');
-        res.json({
+        res.send(JSON.stringify({
             status: true,
             creator: 'Nothing-Ben',
             result: videos
-        });
+        }, null, 4));
     } catch (err) {
         res.status(500).json({
             status: false,
