@@ -482,6 +482,10 @@ app.get('/api/getsession2', (req, res) => {
         }
     });
 });
+// DOC API
+app.get('/doc', (req, res) => {
+    res.redirect('https://nothing-api-4n7g.onrender.com');
+});
 /// SEARCH YOUTUBE API with API key validation and user limit check
 app.get('/api/downloader/ytsearch', async (req, res) => {
     const apikey = req.query.apikey,
