@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nothing APIs</title>
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    color: white;
+    overflow: auto; /* تغییر به auto برای اجازه اسکرول */
+    height: 100vh; /* اطمینان از اینکه ارتفاع کل صفحه درست تنظیم شده است */
+}
+
+
+
+        header {
+            background: rgba(30, 30, 30, 0.8);
+            padding: 20px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffd700; /* زرد طلایی */
+            backdrop-filter: blur(5px);
+        }
+
+        .container {
+    padding: 10px;
+    text-align: center;
+    min-height: 100vh; /* برای اطمینان از اینکه محتوا همیشه فضای کامل صفحه را می‌گیرد */
+    box-sizing: border-box;
+}
+
+        .info {
+            margin: 20px 0;
+            font-size: 1.2rem;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        .menu-icon {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        
+   ‌ ‌   .statusa {
+            color: #28a745; /* رنگ سبز */
+            font-weight: bold;
+        }
+
+        .menu-icon div {
+            width: 30px;
+            height: 4px;
+            background: white;
+            margin: 6px 0;
+            border-radius: 2px;
+        }
+
+        
+
+        .menu a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            margin: 50px 0;
+            font-size: 1rem;
+        }
+
+        .menu a:hover {
+            color: #e91e63;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #888;
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(5px);
+            padding: 10px 0;
+        }
+        
+
+/* استایل برای منو */
+.menu {
+    position: fixed;
+    top: 0;
+    left: -300px;
+    width: 250px;
+    height: 100%;
+    background: rgba(18, 18, 18, 0.9);
+    padding: 20px;
+    transition: left 0.3s ease;
+    box-shadow: 22px 0 5px rgba(0, 0, 0, 0.5);
+}
+
+/* استایل برای آیتم‌های منو */
+.menu-item {
+    display: block;
+    color: white;
+    text-decoration: none;
+    margin: 10px 0;  /* فاصله بین آیتم‌ها کاهش یافته است */
+    font-size: 1rem;
+    position: relative;
+}
+
+/* خط زرد زیر آیتم‌های منو */
+.menu-item::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #ffd700; /* رنگ زرد */
+}
+
+/* استایل برای عنوان‌ها */
+.api-section-title {
+    font-size: 1.5rem;
+    color: #ffd700;  /* رنگ طلایی */
+    margin-bottom: 15px;
+    font-weight: bold;
+    text-align: left;
+}
+
+/* استایل برای علامت خروج */
+#closeMenu {
+    font-size: 2rem;
+    color: white;
+    text-decoration: none;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+}
+
+/* وقتی منو باز است */
+.menu.open {
+    left: 0;
+}
+        .api-list {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            text-align: left;
+            font-size: 1rem;
+            overflow-y: auto;
+            max-height: 500px;
+        }
+
+        .api-list table {
+            width: 100%;
+            color: white;
+        }
+
+        .api-list th, .api-list td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        .api-list th {
+            background: rgba(50, 50, 50, 0.8);
+        }
+
+        .api-list td a {
+            color: #008cff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <header>NOTHING APIS</header>
+
+    <!-- منو -->
+<div class="menu" id="menu">
+    <a href="https://appname.onrender.com/doc" target="_blank" class="menu-item first">Dashboard</a>
+    <a href="javascript:void(0)" onclick="loadContent('download')" class="menu-item">DOWNLOAD APIS</a>
+    <a href="javascript:void(0)" onclick="loadContent('ai')" class="menu-item">AI APIS</a>
+    <a href="javascript:void(0)" onclick="loadContent('search')" class="menu-item">SEARCH APIS</a>
+    <a href="javascript:void(0)" onclick="loadContent('tools')" class="menu-item">TOOLS & SHORTENER APIS</a>
+    <a href="https://wa.me/+93744215959" target="_blank" class="menu-item last">Contact a Nothing</a>
+
+    <!-- علامت خروج (علامت غلط) -->
+    <a href="javascript:void(0)" onclick="toggleMenu()" id="closeMenu" style="position: absolute; top: 10px; right: 20px; font-size: 2rem; color: white; text-decoration: none;">×</a>
+</div>
+
+    <!-- آیکون منو -->
+    <div class="menu-icon" onclick="toggleMenu()">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+
+    <!-- محتوا -->
+<div class="container" id="content">
+    <!-- پیام جدید بالای IP -->
+    <div class="info" id="apiMessage">
+        <p style="font-size: 1.5rem; font-weight: bold; color: #00FF00;">
+            This is the best API! If you don't have an API key, click on "Contact a Nothing" in the menu to get in touch with me. It's free!</span>
+        </p>
+    </div>
+    
+    <div class="info" id="ip">YOUR IP ADDRESS:<br> Loading...</div>
+    <div class="info" id="time">TIME NOW: Loading...</div>
+    <div class="info" id="date">TODAY'S DATE: Loading...</div>
+    <div class="info" id="runtime">SERVER RUNTIME: Loading...</div>
+    <div class="info" id="battery">YOUR BATTERY: Loading...</div>
+</div>
+
+<footer>© 2024 MADE BY NOTHING TECH</footer>
+
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('menu');
+            menu.classList.toggle('open');
+        }
+
+        function loadContent(page) {
+    const content = document.getElementById('content');
+    if (page === 'download') {
+        content.innerHTML = `
+            <div class="api-list">
+                <div class="api-section-title">Download API Endpoints</div>
+                <table>
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Method</th>
+                        <th>Test</th>
+                    </tr>
+                    <tr>
+                        <td>Api Key Checker</td>
+                        <td>apikey</td>
+                        <td class="statusa">Active</td>
+                        <td>GET</td>
+                        <td>
+                            <a href="javascript:void(0)" onclick="requestApiKeyAndOpenLink('https://appname.onrender.com/api/checker?key=APIKEY')">CHECK</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>YouTube ytmp3</td>
+                        <td>Url & apikey</td>
+                        <td>Active</td>
+                        <td>GET</td>
+                        <td>
+                            <a href="javascript:void(0)" onclick="requestApiKeyAndOpenLink('https://appname.onrender.com/api/downloader/ytmp3?url=https://youtube.com/watch?v=jA3XkD8k8-A&apikey=APIKEY')">TEST</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>YouTube ytmp4</td>
+                        <td>Url & apikey</td>
+                        <td>Active</td>
+                        <td>GET</td>
+                        <td>
+                            <a href="javascript:void(0)" onclick="requestApiKeyAndOpenLink('https://appname.onrender.com/api/downloader/ytmp4?url=https://youtube.com/watch?v=jA3XkD8k8-A&apikey=APIKEY')">TEST</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Facebook</td>
+                        <td>Url & apikey</td>
+                        <td>Active</td>
+                        <td>GET</td>
+                        <td>
+                            <a href="javascript:void(0)" onclick="requestApiKeyAndOpenLink('https://appname.onrender.com/api/downloader/facebook?url=https://facebook.com/video&apikey=APIKEY')">TEST</a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        `;
+    }
+    if (page === 'ai') {
+        content.innerHTML = `
+            <div class="api-list">
+                <div class="api-section-title">AI API Endpoints</div>
+                <table>
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Method</th>
+                        <th>Test</th>
+                    </tr>
+                    <tr>
+                        <td>Api Key Checker</td>
+                        <td>apikey</td>
+                        <td>Active</td>
+                        <td>GET</td>
+                        <td>
+                            <a href="javascript:void(0)" onclick="requestApiKeyAndOpenLink('https://appname.onrender.com/api/checker?key=APIKEY')">CHECK</a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        `;
+    }
+    if (page === 'tools') {
+        content.innerHTML = `
+            <div class="api-list">
+                <div class="api-section-title">Tools & Shortener API Endpoints</div>
+                <table>
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Method</th>
+                        <th>Test</th>
+                    </tr>
+                    <tr>
+                        <td>Api Key Checker</td>
+                        <td>apikey</td>
+                        <td>Active</td>
+                        <td>GET</td>
+                        <td>
+                            <a href="javascript:void(0)" onclick="requestApiKeyAndOpenLink('https://appname.onrender.com/api/checker?key=APIKEY')">CHECK</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Create Qr</td>
+                        <td>text/url & apikey</td>
+                        <td>Active</td>
+                        <td>Buffer</td>
+                        <td>
+                            <a href="javascript:void(0)" onclick="requestApiKeyAndOpenLink('https://appname.onrender.com/api/downloader/facebook?url=https://facebook.com/video&apikey=APIKEY')">TEST</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Fancy Text</td>
+                        <td>text & apikey</td>
+                        <td>Active</td>
+                        <td>GET</td>
+                        <td>
+                            <a href="javascript:void(0)" onclick="requestApiKeyAndOpenLink('https://appname.onrender.com/api/downloader/facebook?url=https://facebook.com/video&apikey=APIKEY')">TEST</a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        `;
+    }
+    if (page === 'search') {
+        content.innerHTML = `
+            <div class="api-list">
+                <div class="api-section-title">Search API Endpoints</div>
+                <table>
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Method</th>
+                        <th>Test</th>
+                    </tr>
+                    <tr>
+                        <td>Api Key Checker</td>
+                        <td>apikey</td>
+                        <td>Active</td>
+                        <td>GET</td>
+                        <td>
+                            <a href="javascript:void(0)" onclick="requestApiKeyAndOpenLink('https://appname.onrender.com/api/checker?key=APIKEY')">CHECK</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>YouTube search</td>
+                        <td>text & apikey</td>
+                        <td>Active</td>
+                        <td>GET</td>
+                        <td>
+                            <a href="javascript:void(0)" onclick="requestApiKeyAndOpenLink('https://appname.onrender.com/api/downloader/facebook?url=https://facebook.com/video&apikey=APIKEY')">TEST</a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        `;
+    }
+}
+
+        function requestApiKeyAndOpenLink(apiUrl) {
+            const apiKey = prompt("Please enter your API Key:");
+            if (!apiKey) {
+                alert("API Key is required!");
+                return;
+            }
+            const finalUrl = apiUrl.replace("APIKEY", apiKey);
+            window.open(finalUrl, "_blank");
+        }
+
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('time').textContent = `TIME NOW: ${now.toLocaleTimeString()}`;
+            document.getElementById('date').textContent = `TODAY'S DATE: ${now.toDateString()}`;
+        }, 1000);
+
+        navigator.getBattery().then(battery => {
+            document.getElementById('battery').textContent = `YOUR BATTERY: ${Math.round(battery.level * 100)}% (${battery.charging ? 'Charging' : 'Discharging'})`;
+        });
+
+        fetch('https://api64.ipify.org?format=json').then(response => response.json()).then(data => {
+            document.getElementById('ip').textContent = `YOUR IP ADDRESS: ${data.ip}`;
+        });
+
+        let startTime = Date.now();
+        setInterval(() => {
+            const runtime = Math.floor((Date.now() - startTime) / 1000);
+            const hours = Math.floor(runtime / 3600);
+            const minutes = Math.floor((runtime % 3600) / 60);
+            const seconds = runtime % 60;
+            document.getElementById('runtime').textContent = `SERVER RUNTIME: ${hours}:${minutes}:${seconds}`;
+        }, 1000);
+    </script>
+</body>
+</html>
