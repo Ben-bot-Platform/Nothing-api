@@ -438,7 +438,7 @@ const checkUserLimit = (apikey, ip) => {
 
 // مسیر بررسی وضعیت API
 app.get('/api/checker', (req, res) => {
-    const apikey = req.query.apikey || "nothing-api"; // استفاده از کلید پیش‌فرض
+    const apikey = req.query.apikey,
     const ip = req.ip;
 
     if (!apiKeys[apikey]) {
@@ -482,42 +482,75 @@ app.get('/api/getsession2', (req, res) => {
         }
     });
 });
-// مسیر جستجو در یوتیوب
+/// SEARCH YOUTUBE API with API key validation and user limit check
 app.get('/api/downloader/ytsearch', async (req, res) => {
-    const apikey = req.query.apikey || "nothing-api"; // استفاده از کلید پیش‌فرض
+    const apikey = req.query.apikey,
     const query = req.query.text;
     const ip = req.ip;
 
+    // بررسی کلید API و محدودیت‌های آن
     if (!apikey || !apiKeys[apikey]) {
-        return res.status(401).json({ status: false, message: 'Invalid or missing API key.' });
+        return res.status(401).json({
+            status: false,
+            creator: 'Nothing-Ben',
+            message: 'Invalid or missing API key.'
+        });
     }
 
     const keyData = apiKeys[apikey];
     const userStatus = checkUserLimit(apikey, ip);
 
+    // بررسی استفاده از محدودیت
     if (userStatus.used >= keyData.limit) {
-        return res.status(403).json({ status: false, message: 'Limit exceeded for this key.' });
+        return res.status(403).json({
+            status: false,
+            creator: 'Nothing-Ben',
+            message: 'Limit exceeded for this key.'
+        });
     }
 
+    // بررسی عدم ارسال query
     if (!query) {
-        return res.status(400).json({ status: false, message: 'No search query provided.' });
+        return res.status(400).json({
+            status: false,
+            creator: 'Nothing-Ben',
+            message: 'No search query provided.'
+        });
     }
 
     userStatus.used += 1;
     saveApiKeys(apiKeys); // ذخیره وضعیت کلیدها
 
     try {
+        // جستجوی ویدیوها در یوتیوب
         const results = await ytSearch(query);
-        const videos = results.videos.slice(0, 3).map(video => ({
-            videoId: video.videoId,
-            url: video.url,
-            title: video.title,
-            thumbnail: video.thumbnail,
-            views: video.views
-        }));
-        res.json({ status: true, result: videos });
+        const videos = results.videos
+            .sort((a, b) => b.views - a.views) // مرتب‌سازی بر اساس بازدید
+            .slice(0, 3) // انتخاب 3 ویدیو
+            .map(video => ({
+                type: "video",
+                videoId: video.videoId,
+                url: video.url,
+                title: video.title,
+                thumbnail: video.thumbnail,
+                timestamp: video.duration.timestamp || "0:00",
+                views: video.views,
+                author: video.author.name
+            }));
+
+        res.setHeader('Content-Type', 'application/json');
+        res.json({
+            status: true,
+            creator: 'Nothing-Ben',
+            result: videos
+        });
     } catch (err) {
-        res.status(500).json({ status: false, message: 'Error fetching videos.', error: err.message });
+        res.status(500).json({
+            status: false,
+            creator: 'Nothing-Ben',
+            result: 'Error fetching YouTube search API',
+            error: err.message
+        });
     }
 });
 
