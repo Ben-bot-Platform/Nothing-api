@@ -4,6 +4,7 @@ const gifted = require('gifted-dls');
 const axios = require('axios');
 const ytdl = require('ytdl-core');
 const ytSearch = require('yt-search');
+const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
 const app = express();
@@ -679,7 +680,63 @@ const fontStyles = {
     Fancy: text => text.split('').map(c => '✦' + c + '✦').join(''),
     "HaBan": text => text.split('').map(c => 'ه' + c + 'ا').join('') // فونت "ها بان"
 };
+//SSWEB
+app.get('/api/tools/ssweb', async (req, res) => {
+    const apikey = req.query.apikey; // دریافت کلید API
+    const url = req.query.url; // دریافت URL از درخواست
 
+    // بررسی کلید API
+    if (!apikey || !apiKeys[apikey]) {
+        return res.status(401).json({
+            status: false,
+            message: 'Invalid or missing API key.'
+        });
+    }
+
+    const keyData = checkUserLimit(apikey); // بررسی محدودیت مصرف کاربر
+
+    // بررسی محدودیت مصرف
+    if (keyData.used >= keyData.limit) {
+        return res.status(403).json({
+            status: false,
+            message: 'API key usage limit exceeded.'
+        });
+    }
+
+    // بررسی ارسال URL
+    if (!url) {
+        return res.status(400).json({
+            status: false,
+            message: 'No URL provided.'
+        });
+    }
+
+    // افزایش مقدار `used` برای کاربر
+    keyData.used += 1;
+    saveApiKeys(apiKeys);
+
+    try {
+        // راه‌اندازی Puppeteer برای گرفتن اسکرین‌شات
+        const browser = await puppeteer.launch();
+        const page = await browser.newPage();
+        await page.goto(url, { waitUntil: 'domcontentloaded' }); // رفتن به URL و منتظر ماندن برای بارگذاری کامل
+
+        // گرفتن اسکرین‌شات از صفحه
+        const screenshotBuffer = await page.screenshot(); // گرفتن اسکرین‌شات به صورت Buffer
+
+        await browser.close();
+
+        // ارسال تصویر اسکرین‌شات به عنوان فایل در پاسخ
+        res.setHeader('Content-Type', 'image/png');
+        res.send(screenshotBuffer);
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: 'Error generating screenshot',
+            error: err.message
+        });
+    }
+});
 // FONT TEXT API
 app.get('/api/tools/font-txt', async (req, res) => {
     const apikey = req.query.apikey; // دریافت کلید API
