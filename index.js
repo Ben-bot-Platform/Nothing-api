@@ -5,6 +5,7 @@ const axios = require('axios');
 const ytdl = require('ytdl-core');
 const ytSearch = require('yt-search');
 const TikTokScraper = require('tiktok-scraper');
+const fg = require('api-dylux'); //
 const fs = require('fs');
 const path = require('path');
 const app = express();
@@ -262,6 +263,75 @@ app.get('/api/checkallapikey/check', (req, res) => {
         res.status(500).json({
             status: false,
             result: 'Error reading API keys file.',
+            error: err.message
+        });
+    }
+});
+//YT DL
+app.get('/api/downloader/yt', async (req, res) => {
+    const apikey = req.query.apikey; // دریافت کلید API از درخواست
+    const videoUrl = req.query.url; // دریافت URL ویدیو از درخواست
+
+    // بررسی وجود کلید API در لیست
+    if (!apikey || !apiKeys[apikey]) {
+        return res.status(401).json({
+            status: false,
+            message: 'Invalid or missing API key.'
+        });
+    }
+
+    const keyData = checkUserLimit(apikey); // بررسی محدودیت‌های کاربر
+
+    // بررسی استفاده از محدودیت
+    if (keyData.used >= keyData.limit) {
+        return res.status(403).json({
+            status: false,
+            message: 'API key usage limit exceeded.'
+        });
+    }
+
+    // بررسی عدم ارسال URL ویدیو
+    if (!videoUrl) {
+        return res.status(400).json({
+            status: false,
+            message: 'No YouTube video URL provided.'
+        });
+    }
+
+    // افزایش مقدار `used` برای کلید و ذخیره‌سازی
+    keyData.used += 1;
+    saveApiKeys(apiKeys);
+
+    try {
+        // استفاده از کتابخانه api-dylux برای دانلود ویدیو
+        const data = await fg.ytv(videoUrl);
+
+        if (!data || !data.title || !data.link) {
+            return res.status(500).json({
+                status: false,
+                message: 'Error fetching YouTube video details.'
+            });
+        }
+
+        // ساختار JSON خروجی
+        const video = {
+            type: "video",
+            apikey: apikey, // کلید API
+            title: data.title || 'No Title Available',
+            download_url: data.link
+        };
+
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify({
+            status: true,
+            creator: 'Your-Name',
+            result: [video]
+        }, null, 4)); // مرتب کردن JSON با فاصله 4
+
+    } catch (err) {
+        res.status(500).json({
+            status: false,
+            message: 'Error processing request.',
             error: err.message
         });
     }
