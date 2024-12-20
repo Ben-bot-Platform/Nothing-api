@@ -4,6 +4,7 @@ const gifted = require('gifted-dls');
 const axios = require('axios');
 const ytdl = require('ytdl-core');
 const ytSearch = require('yt-search');
+const figlet = require('figlet');  // برای استفاده از فونت‌های مختلف
 const fg = require('api-dylux'); //
 const fs = require('fs');
 const path = require('path');
@@ -866,10 +867,6 @@ app.get('/api/downloader/ytsearch', async (req, res) => {
         });
     }
 });
-const figlet = require('figlet');  // برای استفاده از فونت‌های مختلف
-const express = require('express');
-const app = express();
-
 // فرض کنید اینجا مجموعه‌ای از فونت‌ها را داریم
 const fonts = [
     'Standard', 'Slant', '3x5', 'Big', 'Banner', 'Block', 'Doom', 'Lean', 'Mirror', 'Small',
