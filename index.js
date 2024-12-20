@@ -867,64 +867,66 @@ app.get('/api/downloader/ytsearch', async (req, res) => {
     }
 });
 app.get('/api/tools/font-txt', (req, res) => {
-    const apikey = req.query.apikey;
-    const text = req.query.text;
+    const apikey = req.query.apikey; // دریافت کلید API
+    const text = req.query.text; // دریافت متن
 
     // اعتبارسنجی کلید API
     if (!apikey || !apiKeys[apikey]) {
-        return res.status(401).json({ status: false, message: 'Invalid or missing API key.' });
+        return res.status(401).json({
+            status: false,
+            creator: 'Nothing-Ben',
+            result: 'Invalid or missing API key.'
+        });
     }
 
     const keyData = checkUserLimit(apikey);
+
+    // بررسی محدودیت کلید API
     if (keyData.used >= keyData.limit) {
-        return res.status(403).json({ status: false, message: 'API key usage limit exceeded.' });
+        return res.status(403).json({
+            status: false,
+            creator: 'Nothing-Ben',
+            result: 'Limit exceeded for this key.'
+        });
     }
 
-    // بررسی متن
+    // بررسی وجود متن
     if (!text) {
-        return res.status(400).json({ status: false, message: 'No text provided.' });
+        return res.status(400).json({
+            status: false,
+            creator: 'Nothing-Ben',
+            result: 'No text provided.'
+        });
     }
 
-    // افزایش میزان استفاده از کلید
+    // افزایش مقدار استفاده از کلید
     keyData.used += 1;
     saveApiKeys(apiKeys);
 
     // تعریف فونت‌ها
     const fonts = {
-        "Bold": `𝗛𝗲𝗹𝗹𝗼`.replace(/Hello/gi, text),
-        "Italic": `𝘏𝘦𝘭𝘭𝘰`.replace(/Hello/gi, text),
-        "Underline": `H̲e̲l̲l̲o̲`.replace(/Hello/gi, text),
-        "StrikeThrough": `H̶e̶l̶l̶o̶`.replace(/Hello/gi, text),
-        "Fancy": `ℍ𝕖𝕝𝕝𝕠`.replace(/Hello/gi, text),
-        "Bubble": `Ⓗⓔⓛⓛⓞ`.replace(/Hello/gi, text),
-        "Mirror": `oᏞᏞƎᎻ`.replace(/Hello/gi, text),
-        "SmallCaps": `ʜᴇʟʟᴏ`.replace(/Hello/gi, text),
-        "Square": `🅗🅔🅛🅛🅞`.replace(/Hello/gi, text),
-        "Flip": `oןןǝɥ`.replace(/Hello/gi, text),
-        "Wide": `H̵ ̵e̵ ̵l̵ ̵l̵ ̵o̵`.replace(/Hello/gi, text),
-        "Zalgo": `H͑͊̔͑͝e͆͂̄͌͠l͛͛̽͌̓͐lͩͨ̐ȏͯ̄`.replace(/Hello/gi, text),
-        "DoubleStruck": `𝔥𝔢𝔩𝔩𝔬`.replace(/Hello/gi, text),
-        "Retro": `ℌ𝔢𝔩𝔩𝔬`.replace(/Hello/gi, text),
-        "Tall": `ᕼᗴᒪᒪᝪ`.replace(/Hello/gi, text),
-        "Wave": `H͎e͎l͎l͎o͎`.replace(/Hello/gi, text),
-        "Star": `⭐H⭐e⭐l⭐l⭐o⭐`.replace(/Hello/gi, text),
-        "Heart": `💓H💓e💓l💓l💓o💓`.replace(/Hello/gi, text),
-        "Cloud": `☁H☁e☁l☁l☁o☁`.replace(/Hello/gi, text),
-        "Ice": `❄H❄e❄l❄l❄o❄`.replace(/Hello/gi, text),
-        "Fire": `🔥H🔥e🔥l🔥l🔥o🔥`.replace(/Hello/gi, text),
-        "Laser": `🄷🄴🄻🄻🄾`.replace(/Hello/gi, text),
-        "Bubble2": `🅷🅴🅻🅻🅾`.replace(/Hello/gi, text),
-        "Emoji": `🎉H🎉e🎉l🎉l🎉o🎉`.replace(/Hello/gi, text),
-        "Binary": `01001000 01100101 01101100 01101100 01101111`,
-        "Dots": `H•e•l•l•o`.replace(/Hello/gi, text),
-        "Split": `H—e—l—l—o`.replace(/Hello/gi, text),
-        "Compact": `ꓧꓬꓪꓪꓳ`.replace(/Hello/gi, text),
-        "StarsInside": `H★e★l★l★o`.replace(/Hello/gi, text),
-        // افزودن باقی فونت‌ها تا سقف 100 فونت...
+        "Bold": `𝗡𝗼𝘁𝗵𝗶𝗻𝗴`.replace(/Nothing/gi, text),
+        "Italic": `𝘕𝘰𝘵𝘩𝘪𝘯𝘨`.replace(/Nothing/gi, text),
+        "Underline": `N̲o̲t̲h̲i̲n̲g̲`.replace(/Nothing/gi, text),
+        "StrikeThrough": `N̶o̶t̶h̶i̶n̶g̶`.replace(/Nothing/gi, text),
+        "Fancy": `𝕹𝖔𝖙𝖍𝖎𝖓𝖌`.replace(/Nothing/gi, text),
+        "Bubble": `ⓃⓄⓉⒽⒾⓃⒼ`.replace(/Nothing/gi, text),
+        "Mirror": `ƃuᴉɥʇoN`.replace(/Nothing/gi, text),
+        "SmallCaps": `ɴᴏᴛʜɪɴɢ`.replace(/Nothing/gi, text),
+        "Square": `🅽🅾🆃🅷🅸🅽🅶`.replace(/Nothing/gi, text),
+        "Flip": `ƃuᴉɥʇoN`.replace(/Nothing/gi, text),
+        "Wide": `N   o   t   h   i   n   g`.replace(/Nothing/gi, text),
+        "Zalgo": `N̴o̴t̴h̴i̴n̴g̴`.replace(/Nothing/gi, text),
+        "DoubleStruck": `𝕹𝖔𝖙𝖍𝖎𝖓𝖌`.replace(/Nothing/gi, text),
+        "Retro": `ℕ𝕠𝕥𝕙𝕚𝕟𝕘`.replace(/Nothing/gi, text),
+        "Tall": `ℕ𝔬𝔱𝔥𝔦𝔫𝔤`.replace(/Nothing/gi, text),
+        "Wave": `N͎o͎t͎h͎i͎n͎g͎`.replace(/Nothing/gi, text),
+        // اضافه کردن باقی فونت‌ها...
     };
 
-    // ارسال نتیجه به صورت JSON مرتب
-    res.json(JSON.stringify({
+    // ارسال خروجی به صورت JSON مرتب‌شده
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify({
         status: true,
         creator: 'Nothing-Ben',
         result: {
@@ -932,7 +934,7 @@ app.get('/api/tools/font-txt', (req, res) => {
             apikey: apikey,
             fonts: fonts
         }
-    }, null, 3));
+    }, null, 4)); // فاصله 4 برای خوانایی
 });
 //QR CODE MAKER
 app.get('/api/tools/qrcode', async (req, res) => {
