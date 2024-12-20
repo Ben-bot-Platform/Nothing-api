@@ -71,25 +71,25 @@ app.get('/api/checker', (req, res) => {
     });
 });
 // مسیر ایجاد کلید جدید
-// ایجاد کلید API جدید
+// مسیر ایجاد کلید API جدید
 app.get('/api/create-apikey', (req, res) => {
     const newKey = req.query.key;
     if (!newKey || apiKeys[newKey]) {
-        return res.status(400).json(JSON.stringify({
+        return res.status(400).json({
             status: false,
             result: 'Invalid or duplicate key.'
-        }));
+        });
     }
 
     apiKeys[newKey] = { limit: 200, used: 0, lastReset: Date.now(), users: {} };
     saveApiKeys(apiKeys);
 
-    res.json(JSON.stringify({
+    res.json({
         status: true,
         result: 'New API key created.',
         newKey,
         limit: 200
-    }));
+    });
 });
 
 // مسیر تغییر محدودیت کلید API
@@ -99,29 +99,29 @@ app.get('/api/apikeychange/upto', (req, res) => {
 
     // بررسی مقدار ورودی
     if (!apikey || !apiKeys[apikey]) {
-        return res.status(400).json(JSON.stringify({
+        return res.status(400).json({
             status: false,
             result: 'Invalid or missing API key.'
-        }));
+        });
     }
 
     if (!newLimit || isNaN(newLimit) || newLimit <= 0) {
-        return res.status(400).json(JSON.stringify({
+        return res.status(400).json({
             status: false,
             result: 'Invalid limit value.'
-        }));
+        });
     }
 
     // به‌روزرسانی محدودیت کلید API
     apiKeys[apikey].limit = newLimit;
     saveApiKeys(apiKeys); // ذخیره تغییرات در فایل
 
-    res.json(JSON.stringify({
+    res.json({
         status: true,
-        result: `API key limit updated successfully.`,
+        result: 'API key limit updated successfully.',
         apikey: apikey,
         newLimit: newLimit
-    }));
+    });
 });
 //DISABLE APIKEY
 app.get('/api/apikeychange/disable', (req, res) => {
@@ -638,6 +638,7 @@ app.get('/api/downloader/ytsearch', async (req, res) => {
                 title: video.title,
                 thumbnail: video.thumbnail,
                 timestamp: video.duration.timestamp || "0:00",
+                uploaded: video.ago,
                 views: video.views,
                 author: video.author.name
             }));
