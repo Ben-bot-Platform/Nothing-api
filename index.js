@@ -674,13 +674,6 @@ app.get('/api/downloader/ytsearch', async (req, res) => {
         });
     }
 });
-//FONT FANCY
-const fontStyles = {
-    Bold: text => text.toUpperCase(),
-    Italic: text => text.split('').map(c => c + '̶').join(''),
-    Fancy: text => text.split('').map(c => '✦' + c + '✦').join(''),
-    "HaBan": text => text.split('').map(c => 'ه' + c + 'ا').join('') // فونت "ها بان"
-};
 //SSWEB
 app.get('/api/tools/ssweb', async (req, res) => {
     const apikey = req.query.apikey;
@@ -722,6 +715,13 @@ app.get('/api/tools/ssweb', async (req, res) => {
         });
     }
 });
+//FONT FANCY
+const fontStyles = {
+    Bold: text => text.toUpperCase(),
+    Italic: text => text.split('').map(c => c + '̶').join(''),
+    Fancy: text => text.split('').map(c => '✦' + c + '✦').join(''),
+    "HaBan": text => text.split('').map(c => 'ه' + c + 'ا').join('') // فونت "ها بان"
+};
 // FONT TEXT API
 app.get('/api/tools/font-txt', async (req, res) => {
     const apikey = req.query.apikey; // دریافت کلید API
