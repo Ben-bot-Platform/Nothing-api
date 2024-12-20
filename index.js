@@ -866,11 +866,40 @@ app.get('/api/downloader/ytsearch', async (req, res) => {
         });
     }
 });
-app.get('/api/tools/font-txt', (req, res) => {
-    const apikey = req.query.apikey; // دریافت کلید API
-    const text = req.query.text; // دریافت متن
+const figlet = require('figlet');  // برای استفاده از فونت‌های مختلف
+const express = require('express');
+const app = express();
 
-    // اعتبارسنجی کلید API
+// فرض کنید اینجا مجموعه‌ای از فونت‌ها را داریم
+const fonts = [
+    'Standard', 'Slant', '3x5', 'Big', 'Banner', 'Block', 'Doom', 'Lean', 'Mirror', 'Small',
+    'Thinkertoy', 'Star Wars', 'Twisted', 'Term', 'Big Money-ne', 'Script', 'Slant', 'Ghost',
+    'Shadow', 'Isometric1', 'Isometric2', 'Isometric3', 'Speed', 'ANSI_Shadow', 'Big Chief',
+    'Caligraphy', 'DOS_Rebel', 'Unicode', 'Bubble', 'Cyberlarge', 'Double', 'Bigfig', 'Small',
+    'Alphabet', 'Poison', 'Wavy', 'DotMatrix', 'Runic', 'Larry3D', 'Sub-Zero', 'Elite', 'ASCII',
+    'Double-Short', 'Tiny', 'Straight', 'King', 'Fancy', 'Swanky', 'Blocky', 'Killer', 'Letter',
+    'Sharp', 'Star Wars', 'Future'
+];
+
+// تبدیل متن به فونت‌های مختلف با استفاده از figlet
+function convertTextToFonts(text) {
+    const result = {};
+    fonts.forEach(font => {
+        figlet.text(text, { font: font }, (err, transformedText) => {
+            if (err) {
+                result[font] = 'Error';
+            } else {
+                result[font] = transformedText;
+            }
+        });
+    });
+    return result;
+}
+
+app.get('/api/tools/font-txt', (req, res) => {
+    const apikey = req.query.apikey;
+    const text = req.query.text;
+
     if (!apikey || !apiKeys[apikey]) {
         return res.status(401).json({
             status: false,
@@ -881,7 +910,6 @@ app.get('/api/tools/font-txt', (req, res) => {
 
     const keyData = checkUserLimit(apikey);
 
-    // بررسی محدودیت کلید API
     if (keyData.used >= keyData.limit) {
         return res.status(403).json({
             status: false,
@@ -890,7 +918,6 @@ app.get('/api/tools/font-txt', (req, res) => {
         });
     }
 
-    // بررسی وجود متن
     if (!text) {
         return res.status(400).json({
             status: false,
@@ -899,32 +926,11 @@ app.get('/api/tools/font-txt', (req, res) => {
         });
     }
 
-    // افزایش مقدار استفاده از کلید
     keyData.used += 1;
     saveApiKeys(apiKeys);
 
-    // تعریف فونت‌ها با استفاده از متغیر text
-    const fonts = {
-        "Bold": `𝗛𝗲𝗹𝗹𝗼`.replace(/Hello/gi, text),
-        "Italic": `𝘏𝘦𝘭𝘭𝘰`.replace(/Hello/gi, text),
-        "Underline": `H̲e̲l̲l̲o̲`.replace(/Hello/gi, text),
-        "StrikeThrough": `H̶e̶l̶l̶o̶`.replace(/Hello/gi, text),
-        "Fancy": `ℍ𝕖𝕝𝕝𝕠`.replace(/Hello/gi, text),
-        "Bubble": `Ⓗⓔⓛⓛⓞ`.replace(/Hello/gi, text),
-        "Mirror": `oᏞᏞƎᎻ`.replace(/Hello/gi, text),
-        "SmallCaps": `ʜᴇʟʟᴏ`.replace(/Hello/gi, text),
-        "Square": `🅗🅔🅛🅛🅞`.replace(/Hello/gi, text),
-        "Flip": `oןןǝɥ`.replace(/Hello/gi, text),
-        "Wide": `H   e   l   l   o`.replace(/Hello/gi, text),
-        "Zalgo": `H̵̴͑͒͊e̷̴̔̉͌̕l̶l̷͊̓̄̒`.replace(/Hello/gi, text),
-        "DoubleStruck": `𝔥𝔢𝔩𝔩𝔬`.replace(/Hello/gi, text),
-        "Retro": `ℌ𝔢𝔩𝔩𝔬`.replace(/Hello/gi, text),
-        "Tall": `ᕼᗴᒪᒪᝪ`.replace(/Hello/gi, text),
-        "Wave": `H͎e͎l͎l͎o͎`.replace(/Hello/gi, text),
-        // افزودن باقی فونت‌ها در صورت نیاز...
-    };
+    const fontsOutput = convertTextToFonts(text);
 
-    // ارسال خروجی به صورت JSON مرتب‌شده
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify({
         status: true,
@@ -932,9 +938,13 @@ app.get('/api/tools/font-txt', (req, res) => {
         result: {
             type: "font",
             apikey: apikey,
-            fonts: fonts
+            fonts: fontsOutput
         }
-    }, null, 4)); // فاصله 4 برای خوانایی
+    }, null, 4));
+});
+
+app.listen(3000, () => {
+    console.log('Server is running on port 3000');
 });
 //QR CODE MAKER
 app.get('/api/tools/qrcode', async (req, res) => {
