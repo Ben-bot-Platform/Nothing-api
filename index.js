@@ -4,7 +4,6 @@ const gifted = require('gifted-dls');
 const axios = require('axios');
 const ytdl = require('ytdl-core');
 const ytSearch = require('yt-search');
-const TikTokScraper = require('tiktok-scraper');
 const fg = require('api-dylux'); //
 const fs = require('fs');
 const path = require('path');
@@ -411,77 +410,6 @@ app.get('/api/downloader/fbdl', async (req, res) => {
         res.status(500).json({
             status: false,
             message: 'Error processing request.',
-            error: err.message
-        });
-    }
-});
-//TIKTOK SEARCH
-app.get('/api/downloader/tiksearch', async (req, res) => {
-    const apikey = req.query.apikey; // دریافت کلید API
-    const url = req.query.url; // لینک ویدیوی TikTok
-
-    // بررسی کلید API
-    if (!apikey || !apiKeys[apikey]) {
-        return res.status(401).json({
-            status: false,
-            creator: 'Nothing-Ben',
-            result: 'Invalid or missing API key.'
-        });
-    }
-
-    const keyData = checkUserLimit(apikey);
-
-    // بررسی محدودیت مصرف
-    if (keyData.used >= keyData.limit) {
-        return res.status(403).json({
-            status: false,
-            creator: 'Nothing-Ben',
-            result: 'Limit exceeded for this key.'
-        });
-    }
-
-    // بررسی ارسال لینک
-    if (!url) {
-        return res.status(400).json({
-            status: false,
-            creator: 'Nothing-Ben',
-            result: 'No TikTok video URL provided.'
-        });
-    }
-
-    // افزایش مقدار استفاده و ذخیره کلید
-    keyData.used += 1;
-    saveApiKeys(apiKeys);
-
-    try {
-        // دریافت اطلاعات ویدیو
-        const videoData = await TikTokScraper.getVideoMeta(url);
-
-        // ساختار خروجی
-        const result = {
-            type: "tiktok",
-            apikey: apikey,
-            video_url: videoData.collector[0].videoUrl,
-            title: videoData.collector[0].text || "No Title",
-            author: videoData.collector[0].authorMeta.name || "Unknown",
-            thumbnail: videoData.collector[0].covers.default || "",
-            duration: videoData.collector[0].videoMeta.duration || 0,
-            likes: videoData.collector[0].diggCount || 0,
-            comments: videoData.collector[0].commentCount || 0,
-            shares: videoData.collector[0].shareCount || 0,
-        };
-
-        res.setHeader('Content-Type', 'application/json');
-        res.send(JSON.stringify({
-            status: true,
-            creator: 'Nothing-Ben',
-            result: [result]
-        }, null, 4)); // JSON مرتب‌شده
-    } catch (err) {
-        res.status(500).json({
-            status: false,
-            creator: 'Nothing-Ben',
-            result: 'Error fetching TikTok video.',
             error: err.message
         });
     }
