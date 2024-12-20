@@ -5,6 +5,7 @@ const axios = require('axios');
 const ytdl = require('ytdl-core');
 const ytSearch = require('yt-search');
 const puppeteer = require('puppeteer');
+const captureWebsite = require('capture-website');
 const fs = require('fs');
 const path = require('path');
 const app = express();
@@ -682,58 +683,42 @@ const fontStyles = {
 };
 //SSWEB
 app.get('/api/tools/ssweb', async (req, res) => {
-    const apikey = req.query.apikey; // دریافت کلید API
-    const url = req.query.url; // دریافت URL از درخواست
+    const apikey = req.query.apikey;
+    const url = req.query.url;
 
     // بررسی کلید API
     if (!apikey || !apiKeys[apikey]) {
         return res.status(401).json({
             status: false,
-            message: 'Invalid or missing API key.'
+            message: 'Invalid or missing API key.',
         });
     }
 
-    const keyData = checkUserLimit(apikey); // بررسی محدودیت مصرف کاربر
-
-    // بررسی محدودیت مصرف
-    if (keyData.used >= keyData.limit) {
-        return res.status(403).json({
-            status: false,
-            message: 'API key usage limit exceeded.'
-        });
-    }
-
-    // بررسی ارسال URL
     if (!url) {
         return res.status(400).json({
             status: false,
-            message: 'No URL provided.'
+            message: 'No URL provided.',
         });
     }
 
-    // افزایش مقدار `used` برای کاربر
-    keyData.used += 1;
-    saveApiKeys(apiKeys);
-
     try {
-        // راه‌اندازی Puppeteer برای گرفتن اسکرین‌شات
-        const browser = await puppeteer.launch();
-        const page = await browser.newPage();
-        await page.goto(url, { waitUntil: 'domcontentloaded' }); // رفتن به URL و منتظر ماندن برای بارگذاری کامل
+        // تنظیمات گرفتن اسکرین‌شات
+        const screenshotBuffer = await captureWebsite.buffer(url, {
+            fullPage: true, // گرفتن اسکرین‌شات تمام صفحه
+            width: 1920, // عرض صفحه نمایش
+            height: 1080, // ارتفاع صفحه نمایش
+            timeout: 30, // زمان انتظار برای بارگذاری
+        });
 
-        // گرفتن اسکرین‌شات از صفحه
-        const screenshotBuffer = await page.screenshot(); // گرفتن اسکرین‌شات به صورت Buffer
-
-        await browser.close();
-
-        // ارسال تصویر اسکرین‌شات به عنوان فایل در پاسخ
+        // ارسال تصویر اسکرین‌شات
         res.setHeader('Content-Type', 'image/png');
         res.send(screenshotBuffer);
     } catch (err) {
-        return res.status(500).json({
+        console.error(err.message); // نمایش خطا در لاگ‌ها
+        res.status(500).json({
             status: false,
             message: 'Error generating screenshot',
-            error: err.message
+            error: err.message,
         });
     }
 });
