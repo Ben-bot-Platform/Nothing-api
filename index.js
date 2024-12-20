@@ -588,8 +588,8 @@ app.get('/api/downloader/ytmp3', async (req, res) => {
 });
 /// SEARCH YOUTUBE API with API key validation and user limit check
 app.get('/api/downloader/ytsearch', async (req, res) => {
-    const apikey = req.query.apikey; // دریافت کلید API از درخواست
-    const query = req.query.text; // دریافت query از درخواست
+    const apikey = req.query.apikey; // دریافت کلید API
+    const query = req.query.text; // دریافت متن جستجو
 
     // بررسی کلید API و محدودیت‌های آن
     if (!apikey || !apiKeys[apikey]) {
@@ -628,19 +628,26 @@ app.get('/api/downloader/ytsearch', async (req, res) => {
         // جستجوی ویدیوها در یوتیوب
         const results = await ytSearch(query);
         const videos = results.videos
-            .sort((a, b) => b.views - a.views) // مرتب‌سازی بر اساس بازدید
-            .slice(0, 3) // انتخاب 3 ویدیو
+            .sort((a, b) => b.views - a.views) // مرتب‌سازی بر اساس تعداد بازدید
+            .slice(0, 3) // انتخاب 3 نتیجه اول
             .map(video => ({
                 type: "video",
-                apikey: apikey, // افزودن کلید API به نتیجه
+                apikey: apikey, // کلید API
                 videoId: video.videoId,
                 url: video.url,
                 title: video.title,
-                thumbnail: video.thumbnail,
-                timestamp: video.duration.timestamp || "0:00",
-                uploaded: video.ago,
-                views: video.views,
-                author: video.author.name
+                description: video.description || "", // توضیحات ویدیو
+                image: video.thumbnail, // لینک تصویر بندانگشتی
+                thumbnail: video.thumbnail, // لینک تصویر بندانگشتی
+                seconds: video.duration.seconds || 0, // مدت زمان بر حسب ثانیه
+                timestamp: video.duration.timestamp || "0:00", // مدت زمان در قالب hh:mm:ss
+                duration: video.duration, // شیء مدت زمان
+                ago: video.ago, // تاریخ انتشار (مثلاً "1 year ago")
+                views: video.views, // تعداد بازدید
+                author: {
+                    name: video.author.name, // نام کانال
+                    url: video.author.url // لینک کانال
+                }
             }));
 
         // ارسال JSON مرتب‌شده
@@ -649,7 +656,7 @@ app.get('/api/downloader/ytsearch', async (req, res) => {
             status: true,
             creator: 'Nothing-Ben',
             result: videos
-        }, null, 4)); // مرتب‌سازی JSON با فاصله 4
+        }, null, 4)); // JSON با فاصله 4
     } catch (err) {
         res.status(500).json({
             status: false,
