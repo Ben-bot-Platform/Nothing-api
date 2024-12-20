@@ -866,7 +866,6 @@ app.get('/api/downloader/ytsearch', async (req, res) => {
         });
     }
 });
-//FONT FANCY
 app.get('/api/tools/font-txt', (req, res) => {
     const apikey = req.query.apikey;
     const text = req.query.text;
@@ -924,12 +923,16 @@ app.get('/api/tools/font-txt', (req, res) => {
         // افزودن باقی فونت‌ها تا سقف 100 فونت...
     };
 
-    // ارسال نتیجه
-    res.json({
+    // ارسال نتیجه به صورت JSON مرتب
+    res.json(JSON.stringify({
         status: true,
         creator: 'Nothing-Ben',
-        result: fonts
-    });
+        result: {
+            type: "font",
+            apikey: apikey,
+            fonts: fonts
+        }
+    }, null, 3));
 });
 //QR CODE MAKER
 app.get('/api/tools/qrcode', async (req, res) => {
