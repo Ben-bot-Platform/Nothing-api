@@ -715,11 +715,14 @@ app.get('/api/tools/font-txt', async (req, res) => {
     keyData.used += 1;
     saveApiKeys(apiKeys);
 
-    const convertedFonts = {};
+    const result = {
+        type: "text", // نوع داده
+        apikey: apikey, // کلید API
+    };
 
     // اضافه کردن فونت‌های پیش‌فرض
     Object.keys(fontStyles).forEach(fontName => {
-        convertedFonts[fontName] = fontStyles[fontName](text);
+        result[fontName] = fontStyles[fontName](text); // تبدیل متن به هر فونت پیش‌فرض
     });
 
     // اضافه کردن فونت‌های ASCII با استفاده از figlet
@@ -734,7 +737,7 @@ app.get('/api/tools/font-txt', async (req, res) => {
 
         fonts.slice(0, 50).forEach(fontName => {
             try {
-                convertedFonts[fontName] = figlet.textSync(text, { font: fontName });
+                result[fontName] = figlet.textSync(text, { font: fontName }); // تبدیل متن به فونت‌های ASCII
             } catch (err) {
                 console.log(`Error with font ${fontName}: ${err.message}`);
             }
@@ -753,7 +756,7 @@ app.get('/api/tools/font-txt', async (req, res) => {
     res.send(JSON.stringify({
         status: true,
         creator: 'Nothing-Ben',
-        result: convertedFonts
+        result: result
     }, null, 3)); // مرتب کردن JSON با فاصله 3
 });
 //QR CODE MAKER
