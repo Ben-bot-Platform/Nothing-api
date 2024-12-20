@@ -939,10 +939,6 @@ app.get('/api/tools/font-txt', (req, res) => {
         }
     }, null, 4));
 });
-
-app.listen(3000, () => {
-    console.log('Server is running on port 3000');
-});
 //QR CODE MAKER
 app.get('/api/tools/qrcode', async (req, res) => {
     const apikey = req.query.apikey; // دریافت کلید API
