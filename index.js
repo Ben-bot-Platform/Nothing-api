@@ -880,20 +880,22 @@ const fonts = [
 
 // تبدیل متن به فونت‌های مختلف با استفاده از figlet
 function convertTextToFonts(text) {
-    const result = {};
-    fonts.forEach(font => {
-        figlet.text(text, { font: font }, (err, transformedText) => {
-            if (err) {
-                result[font] = 'Error';
-            } else {
-                result[font] = transformedText;
-            }
+    const promises = fonts.map(font => {
+        return new Promise((resolve, reject) => {
+            figlet.text(text, { font: font }, (err, transformedText) => {
+                if (err) {
+                    resolve({ font, transformedText: 'Error' });
+                } else {
+                    resolve({ font, transformedText });
+                }
+            });
         });
     });
-    return result;
+
+    return Promise.all(promises);
 }
 
-app.get('/api/tools/font-txt', (req, res) => {
+app.get('/api/tools/font-txt', async (req, res) => {
     const apikey = req.query.apikey;
     const text = req.query.text;
 
@@ -926,18 +928,30 @@ app.get('/api/tools/font-txt', (req, res) => {
     keyData.used += 1;
     saveApiKeys(apiKeys);
 
-    const fontsOutput = convertTextToFonts(text);
+    try {
+        const fontsOutput = await convertTextToFonts(text);
+        const result = {};
 
-    res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify({
-        status: true,
-        creator: 'Nothing-Ben',
-        result: {
-            type: "font",
-            apikey: apikey,
-            fonts: fontsOutput
-        }
-    }, null, 4));
+        fontsOutput.forEach(({ font, transformedText }) => {
+            result[font] = transformedText;
+        });
+
+        res.json({
+            status: true,
+            creator: 'Nothing-Ben',
+            result: {
+                type: "font",
+                apikey: apikey,
+                fonts: result
+            }
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: false,
+            creator: 'Nothing-Ben',
+            result: 'Error generating fonts.'
+        });
+    }
 });
 //QR CODE MAKER
 app.get('/api/tools/qrcode', async (req, res) => {
