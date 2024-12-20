@@ -958,10 +958,9 @@ app.get('/api/tools/font-txt', (req, res) => {
 });
 //QR CODE MAKER
 app.get('/api/tools/qrcode', async (req, res) => {
-    const apikey = req.query.apikey; // دریافت کلید API از درخواست
-    const text = req.query.text; // دریافت متن برای تولید QR Code
+    const apikey = req.query.apikey; // دریافت کلید API
+    const text = req.query.text; // متن برای تولید QR Code
 
-    // بررسی وجود کلید API در لیست
     if (!apikey || !apiKeys[apikey]) {
         return res.status(401).json({
             status: false,
@@ -969,9 +968,7 @@ app.get('/api/tools/qrcode', async (req, res) => {
         });
     }
 
-    const keyData = checkUserLimit(apikey); // بررسی محدودیت‌های کاربر
-
-    // بررسی استفاده از محدودیت
+    const keyData = checkUserLimit(apikey);
     if (keyData.used >= keyData.limit) {
         return res.status(403).json({
             status: false,
@@ -979,7 +976,6 @@ app.get('/api/tools/qrcode', async (req, res) => {
         });
     }
 
-    // بررسی عدم ارسال متن
     if (!text) {
         return res.status(400).json({
             status: false,
@@ -987,31 +983,18 @@ app.get('/api/tools/qrcode', async (req, res) => {
         });
     }
 
-    // افزایش مقدار `used` برای کلید و ذخیره‌سازی
     keyData.used += 1;
     saveApiKeys(apiKeys);
 
     try {
-        // ایجاد QR Code با API qrserver
         const apiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(text)}`;
         
-        // کوتاه کردن لینک با TinyURL
-        const tinyUrlResponse = await axios.get(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(apiUrl)}`);
+        // درخواست تصویر QR Code
+        const response = await axios.get(apiUrl, { responseType: 'arraybuffer' });
 
-        if (tinyUrlResponse.data) {
-            res.setHeader('Content-Type', 'application/json');
-            res.send(JSON.stringify({
-                status: true,
-                creator: 'Nothing-Ben',
-                result: {
-                    type: "qrcode",
-                    apikey: apikey,
-                    download_url: tinyUrlResponse.data
-                }
-            }, null, 3)); // مرتب کردن JSON با فاصله 3
-        } else {
-            throw new Error('TinyURL API response error');
-        }
+        // ارسال تصویر
+        res.setHeader('Content-Type', 'image/png');
+        res.send(response.data);
     } catch (err) {
         res.status(500).json({
             status: false,
