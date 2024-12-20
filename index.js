@@ -4,8 +4,6 @@ const gifted = require('gifted-dls');
 const axios = require('axios');
 const ytdl = require('ytdl-core');
 const ytSearch = require('yt-search');
-const puppeteer = require('puppeteer');
-const captureWebsite = require('capture-website');
 const fs = require('fs');
 const path = require('path');
 const app = express();
@@ -346,6 +344,61 @@ app.get('/api/downloader/fbdl', async (req, res) => {
         });
     }
 });
+//TINYURL CODE
+app.get('/api/tools/tinyurl', async (req, res) => {
+    const apikey = req.query.apikey; // دریافت کلید API
+    const url = req.query.url; // دریافت URL برای تبدیل
+
+    // بررسی کلید API
+    if (!apikey || !apiKeys[apikey]) {
+        return res.status(401).json({
+            status: false,
+            result: 'Invalid or missing API key.'
+        });
+    }
+
+    const keyData = checkUserLimit(apikey); // بررسی محدودیت‌های کاربر
+
+    // بررسی استفاده از محدودیت
+    if (keyData.used >= keyData.limit) {
+        return res.status(403).json({
+            status: false,
+            result: 'API key usage limit exceeded.'
+        });
+    }
+
+    // بررسی URL
+    if (!url) {
+        return res.status(400).json({
+            status: false,
+            result: 'No URL provided.'
+        });
+    }
+
+    // افزایش مصرف برای کلید و ذخیره
+    keyData.used += 1;
+
+    // ارسال درخواست به API TinyURL
+    try {
+        const tinyUrlResponse = await axios.get(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`);
+        
+        // ارسال پاسخ با لینک TinyURL
+        res.json({
+            status: true,
+            result: {
+                type: "tinyurl",
+                apikey: apikey,
+                tiny_url: tinyUrlResponse.data
+            }
+        });
+    } catch (err) {
+        res.status(500).json({
+            status: false,
+            message: 'Error converting URL to TinyURL.',
+            error: err.message
+        });
+    }
+});
 //INGDL
 app.get('/api/downloader/ingdl', async (req, res) => {
     const apikey = req.query.apikey; // دریافت کلید API
@@ -674,47 +727,6 @@ app.get('/api/downloader/ytsearch', async (req, res) => {
         });
     }
 });
-//SSWEB
-app.get('/api/tools/ssweb', async (req, res) => {
-    const apikey = req.query.apikey;
-    const url = req.query.url;
-
-    // بررسی کلید API
-    if (!apikey || !apiKeys[apikey]) {
-        return res.status(401).json({
-            status: false,
-            message: 'Invalid or missing API key.',
-        });
-    }
-
-    if (!url) {
-        return res.status(400).json({
-            status: false,
-            message: 'No URL provided.',
-        });
-    }
-
-    try {
-        // تنظیمات گرفتن اسکرین‌شات
-        const screenshotBuffer = await captureWebsite.buffer(url, {
-            fullPage: true, // گرفتن اسکرین‌شات تمام صفحه
-            width: 1920, // عرض صفحه نمایش
-            height: 1080, // ارتفاع صفحه نمایش
-            timeout: 30, // زمان انتظار برای بارگذاری
-        });
-
-        // ارسال تصویر اسکرین‌شات
-        res.setHeader('Content-Type', 'image/png');
-        res.send(screenshotBuffer);
-    } catch (err) {
-        console.error(err.message); // نمایش خطا در لاگ‌ها
-        res.status(500).json({
-            status: false,
-            message: 'Error generating screenshot',
-            error: err.message,
-        });
-    }
-});
 //FONT FANCY
 const fontStyles = {
     Bold: text => text.toUpperCase(),
@@ -758,7 +770,7 @@ app.get('/api/tools/font-txt', async (req, res) => {
     saveApiKeys(apiKeys);
 
     const result = {
-        type: "text", // نوع داده
+        type: "font", // نوع داده
         apikey: apikey, // کلید API
     };
 
