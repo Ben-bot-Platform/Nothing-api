@@ -347,54 +347,123 @@ app.get('/api/downloader/fbdl', async (req, res) => {
 //TINYURL CODE
 app.get('/api/tools/tinyurl', async (req, res) => {
     const apikey = req.query.apikey; // دریافت کلید API
-    const url = req.query.url; // دریافت URL برای تبدیل
+    const url = req.query.url; // URL اصلی
 
     // بررسی کلید API
     if (!apikey || !apiKeys[apikey]) {
         return res.status(401).json({
             status: false,
-            result: 'Invalid or missing API key.'
+            message: 'Invalid or missing API key.'
         });
     }
 
-    const keyData = checkUserLimit(apikey); // بررسی محدودیت‌های کاربر
+    const keyData = checkUserLimit(apikey); // بررسی محدودیت کاربر
 
-    // بررسی استفاده از محدودیت
+    // بررسی محدودیت
     if (keyData.used >= keyData.limit) {
         return res.status(403).json({
             status: false,
-            result: 'API key usage limit exceeded.'
+            message: 'API key usage limit exceeded.'
         });
     }
 
-    // بررسی URL
+    // بررسی ارسال URL
     if (!url) {
         return res.status(400).json({
             status: false,
-            result: 'No URL provided.'
+            message: 'No URL provided.'
         });
     }
 
-    // افزایش مصرف برای کلید و ذخیره
+    // افزایش مقدار مصرف کلید
     keyData.used += 1;
+    saveApiKeys(apiKeys);
 
-    // ارسال درخواست به API TinyURL
     try {
+        // ارسال درخواست به TinyURL
         const tinyUrlResponse = await axios.get(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`);
-        
-        // ارسال پاسخ با لینک TinyURL
-        res.json({
+        const tinyUrl = tinyUrlResponse.data;
+
+        // ساختار JSON خروجی
+        const result = {
+            type: "tinyurl",
+            apikey: apikey,
+            tiny_url: tinyUrl,
+        };
+
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify({
             status: true,
-            result: {
-                type: "tinyurl",
-                apikey: apikey,
-                tiny_url: tinyUrlResponse.data
-            }
-        });
+            creator: 'Nothing-Ben',
+            result: [result]
+        }, null, 4)); // JSON مرتب با فاصله 4
     } catch (err) {
         res.status(500).json({
             status: false,
-            message: 'Error converting URL to TinyURL.',
+            message: 'Error creating TinyURL.',
+            error: err.message
+        });
+    }
+});
+//SHORT URL
+app.get('/api/tools/shorturl', async (req, res) => {
+    const apikey = req.query.apikey; // دریافت کلید API
+    const url = req.query.url; // URL اصلی
+
+    // بررسی کلید API
+    if (!apikey || !apiKeys[apikey]) {
+        return res.status(401).json({
+            status: false,
+            message: 'Invalid or missing API key.'
+        });
+    }
+
+    const keyData = checkUserLimit(apikey); // بررسی محدودیت کاربر
+
+    // بررسی محدودیت
+    if (keyData.used >= keyData.limit) {
+        return res.status(403).json({
+            status: false,
+            message: 'API key usage limit exceeded.'
+        });
+    }
+
+    // بررسی ارسال URL
+    if (!url) {
+        return res.status(400).json({
+            status: false,
+            message: 'No URL provided.'
+        });
+    }
+
+    // افزایش مقدار مصرف کلید
+    keyData.used += 1;
+    saveApiKeys(apiKeys);
+
+    try {
+        // ارسال درخواست به ShortURL
+        const response = await axios.post('https://www.shorturl.at/shortener.php', null, {
+            params: { url: url }
+        });
+        const shortUrl = response.data || 'Shortening failed';
+
+        // ساختار JSON خروجی
+        const result = {
+            type: "shorturl",
+            apikey: apikey,
+            short_url: shortUrl,
+        };
+
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify({
+            status: true,
+            creator: 'Nothing-Ben',
+            result: [result]
+        }, null, 4)); // JSON مرتب با فاصله 4
+    } catch (err) {
+        res.status(500).json({
+            status: false,
+            message: 'Error creating ShortURL.',
             error: err.message
         });
     }
