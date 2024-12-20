@@ -7,8 +7,6 @@ const ytSearch = require('yt-search');
 const fs = require('fs');
 const path = require('path');
 const app = express();
-const fileUpload = require('express-fileupload');
-const FormData = require('form-data');
 const port = process.env.PORT || 8080;
 const timeLimit = 7 * 24 * 60 * 60 * 1000; // مدت زمان یک هفته (میلی‌ثانیه)
 const apiKeyFile = path.join(__dirname, 'apikeyall.json'); // مسیر فایل کلیدها
@@ -265,69 +263,7 @@ app.get('/api/checkallapikey/check', (req, res) => {
     }
 });
 //UPLOAD API
-// فعال کردن express-fileupload
-app.use(fileUpload());
 
-// نمایش فرم آپلود در مسیر /api/upload
-app.get('/api/upload', (req, res) => {
-    res.send(`
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Catbox File Uploader</title>
-    </head>
-    <body>
-        <h1>Upload File to Catbox</h1>
-        <form id="uploadForm" action="/api/upload" method="POST" enctype="multipart/form-data">
-            <input type="file" name="file" required>
-            <button type="submit">Upload</button>
-        </form>
-    </body>
-    </html>
-    `);
-});
-
-// مسیر پردازش آپلود فایل
-app.post('/api/upload', async (req, res) => {
-    if (!req.files || !req.files.file) {
-        return res.status(400).json({
-            status: false,
-            message: 'No file uploaded.'
-        });
-    }
-
-    const form = new FormData();
-    form.append('file', req.files.file.data, req.files.file.name);
-
-    try {
-        // آپلود فایل به Catbox
-        const response = await axios.post('https://catbox.moe/user/api.php', form, {
-            headers: {
-                ...form.getHeaders()
-            }
-        });
-
-        if (response.data) {
-            res.json({
-                status: true,
-                message: 'File uploaded successfully!',
-                download_url: response.data
-            });
-        } else {
-            res.json({
-                status: false,
-                message: 'Error uploading file to Catbox.'
-            });
-        }
-    } catch (error) {
-        res.status(500).json({
-            status: false,
-            message: `Error uploading file: ${error.message}`
-        });
-    }
-});
 //FBDL
 app.get('/api/downloader/fbdl', async (req, res) => {
     const apikey = req.query.apikey; // دریافت کلید API از درخواست
