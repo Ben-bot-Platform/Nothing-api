@@ -52,23 +52,23 @@ app.get('/api/checker', (req, res) => {
     const apikey = req.query.apikey;
 
     if (!apiKeys[apikey]) {
-        return res.status(401).json(JSON.stringify({
+        return res.status(401).json({
             status: false,
-            message: 'Invalid or missing API key.'
-        }));
+            result: 'Invalid or missing API key.'
+        });
     }
 
     const keyData = apiKeys[apikey];
     const remaining = keyData.limit - keyData.used;
 
-    res.json(JSON.stringify({
+    res.json({
         status: true,
         apikey,
         limit: keyData.limit,
         used: keyData.used,
         remaining,
         resetIn: '7 days'
-    }));
+    });
 });
 // مسیر ایجاد کلید جدید
 // ایجاد کلید API جدید
@@ -77,7 +77,7 @@ app.get('/api/create-apikey', (req, res) => {
     if (!newKey || apiKeys[newKey]) {
         return res.status(400).json(JSON.stringify({
             status: false,
-            message: 'Invalid or duplicate key.'
+            result: 'Invalid or duplicate key.'
         }));
     }
 
@@ -86,7 +86,7 @@ app.get('/api/create-apikey', (req, res) => {
 
     res.json(JSON.stringify({
         status: true,
-        message: 'New API key created.',
+        result: 'New API key created.',
         newKey,
         limit: 200
     }));
@@ -101,14 +101,14 @@ app.get('/api/apikeychange/upto', (req, res) => {
     if (!apikey || !apiKeys[apikey]) {
         return res.status(400).json(JSON.stringify({
             status: false,
-            message: 'Invalid or missing API key.'
+            result: 'Invalid or missing API key.'
         }));
     }
 
     if (!newLimit || isNaN(newLimit) || newLimit <= 0) {
         return res.status(400).json(JSON.stringify({
             status: false,
-            message: 'Invalid limit value.'
+            result: 'Invalid limit value.'
         }));
     }
 
@@ -118,7 +118,7 @@ app.get('/api/apikeychange/upto', (req, res) => {
 
     res.json(JSON.stringify({
         status: true,
-        message: `API key limit updated successfully.`,
+        result: `API key limit updated successfully.`,
         apikey: apikey,
         newLimit: newLimit
     }));
@@ -131,7 +131,7 @@ app.get('/api/apikeychange/disable', (req, res) => {
     if (!apikey || !apiKeys[apikey]) {
         return res.status(400).json(JSON.stringify({
             status: false,
-            message: 'Invalid or missing API key.'
+            result: 'Invalid or missing API key.'
         }));
     }
 
@@ -141,7 +141,7 @@ app.get('/api/apikeychange/disable', (req, res) => {
 
     res.json(JSON.stringify({
         status: true,
-        message: `API key ${apikey} has been disabled.`,
+        result: `API key ${apikey} has been disabled.`,
         apikey
     }));
 });
@@ -154,7 +154,7 @@ app.get('/api/apikeychange/enable', (req, res) => {
     if (!apikey || !apiKeys[apikey]) {
         return res.status(400).json(JSON.stringify({
             status: false,
-            message: 'Invalid or missing API key.'
+            result: 'Invalid or missing API key.'
         }));
     }
 
@@ -164,7 +164,7 @@ app.get('/api/apikeychange/enable', (req, res) => {
 
     res.json(JSON.stringify({
         status: true,
-        message: `API key ${apikey} has been enabled.`,
+        result: `API key ${apikey} has been enabled.`,
         apikey
     }));
 });
@@ -176,7 +176,7 @@ app.get('/api/apikeychange/delete', (req, res) => {
     if (!apikey || !apiKeys[apikey]) {
         return res.status(400).json(JSON.stringify({
             status: false,
-            message: 'Invalid or missing API key.'
+            result: 'Invalid or missing API key.'
         }));
     }
 
@@ -186,7 +186,7 @@ app.get('/api/apikeychange/delete', (req, res) => {
 
     res.json(JSON.stringify({
         status: true,
-        message: `API key ${apikey} has been deleted.`,
+        result: `API key ${apikey} has been deleted.`,
         apikey
     }));
 });
@@ -199,7 +199,7 @@ app.get('/api/apikeychange/reset', (req, res) => {
     if (!apikey || !apiKeys[apikey]) {
         return res.status(400).json(JSON.stringify({
             status: false,
-            message: 'Invalid or missing API key.'
+            result: 'Invalid or missing API key.'
         }));
     }
 
@@ -210,7 +210,7 @@ app.get('/api/apikeychange/reset', (req, res) => {
 
     res.json(JSON.stringify({
         status: true,
-        message: `API key ${apikey} has been reset.`,
+        result: `API key ${apikey} has been reset.`,
         apikey
     }));
 });
@@ -222,13 +222,16 @@ app.get('/api/getsession2', (req, res) => {
         if (err) {
             res.status(500).json(JSON.stringify({
                 status: false,
-                message: 'Error downloading file.',
-                error: err.message
+                result: 'Error downloading file.',
+                error: err.result
             }));
         }
     });
 });
 // DOC API
+app.get('/docs', (req, res) => {
+    res.redirect('https://nothing-api-4n7g.onrender.com');
+});
 app.get('/doc', (req, res) => {
     res.redirect('https://nothing-api-4n7g.onrender.com');
 });
@@ -257,13 +260,11 @@ app.get('/api/checkallapikey/check', (req, res) => {
     } catch (err) {
         res.status(500).json({
             status: false,
-            message: 'Error reading API keys file.',
+            result: 'Error reading API keys file.',
             error: err.message
         });
     }
 });
-//UPLOAD API
-
 //FBDL
 app.get('/api/downloader/fbdl', async (req, res) => {
     const apikey = req.query.apikey; // دریافت کلید API از درخواست
@@ -728,7 +729,7 @@ app.get('/api/tools/font-txt', async (req, res) => {
         return res.status(500).json({
             status: false,
             creator: 'Nothing-Ben',
-            result: 'Error loading fonts',
+            message: 'Error loading fonts',
             error: err.message
         });
     }
@@ -750,7 +751,7 @@ app.get('/api/tools/qrcode', async (req, res) => {
     if (!apikey || !apiKeys[apikey]) {
         return res.status(401).json({
             status: false,
-            message: 'Invalid or missing API key.'
+            result: 'Invalid or missing API key.'
         });
     }
 
@@ -760,7 +761,7 @@ app.get('/api/tools/qrcode', async (req, res) => {
     if (keyData.used >= keyData.limit) {
         return res.status(403).json({
             status: false,
-            message: 'API key usage limit exceeded.'
+            result: 'API key usage limit exceeded.'
         });
     }
 
@@ -768,7 +769,7 @@ app.get('/api/tools/qrcode', async (req, res) => {
     if (!text) {
         return res.status(400).json({
             status: false,
-            message: 'No text provided.'
+            result: 'No text provided.'
         });
     }
 
