@@ -323,6 +323,8 @@ app.get('/api/downloader/fbdl', async (req, res) => {
 
         // ساختار JSON خروجی
         const video = {
+            type: "video",
+            apikey: apikey, // کلید API
             title: data.title || 'No Title Available',
             download_url: tinyUrls
         };
@@ -406,6 +408,8 @@ app.get('/api/downloader/ingdl', async (req, res) => {
 
         // ساختار JSON خروجی
         const result = {
+            type: "video",
+            apikey: apikey, // کلید API
             thumbnail: shortThumbnailLink.data || thumbnailLink,
             download_url: shortMp4Link.data || mp4Link
         };
@@ -480,6 +484,7 @@ app.get('/api/downloader/ytmp4', async (req, res) => {
         // ساختار JSON خروجی
         const video = {
             type: "video",
+            apikey: apikey, // کلید API
             quality: "480p", // کیفیت پیش‌فرض
             title: data.title || 'No Title Available',
             description: data.description || 'No Description Available',
@@ -564,6 +569,7 @@ app.get('/api/downloader/ytmp3', async (req, res) => {
         // ساختار JSON خروجی
         const video = {
             type: "audio",
+            apikey: apikey, // کلید API
             quality: "320kbps",
             title: data.title || 'No Title Available',
             duration: data.duration || 'Unknown',
@@ -629,7 +635,7 @@ app.get('/api/downloader/ytsearch', async (req, res) => {
         const results = await ytSearch(query);
         const videos = results.videos
             .sort((a, b) => b.views - a.views) // مرتب‌سازی بر اساس تعداد بازدید
-            .slice(0, 3) // انتخاب 3 نتیجه اول
+            .slice(0, 9) // انتخاب 3 نتیجه اول
             .map(video => ({
                 type: "video",
                 apikey: apikey, // کلید API
