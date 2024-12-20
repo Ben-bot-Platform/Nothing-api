@@ -868,23 +868,45 @@ app.get('/api/downloader/ytsearch', async (req, res) => {
 });
 //FONT FANCY
 const fontStyles = {
-    "Ⓖⓘⓕⓣⓔⓓ Ⓣⓔⓒⓗ": text => text.split('').map(c => 'Ⓖⓘⓕⓣⓔⓓ Ⓣⓔⓒⓗ').join(''),
-    "🅖🅘🅕🅣🅔🅓 🅣🅔🅒🅗": text => text.split('').map(c => '🅖🅘🅕🅣🅔🅓 🅣🅔🅒🅗').join(''),
-    "Ｇｉｆｔｅｄ Ｔｅｃｈ": text => text.split('').map(c => 'Ｇｉｆｔｅｄ Ｔｅｃｈ').join(''),
-    "𝐆𝐢𝐟𝐭𝐞𝐝 𝐓𝐞𝐜𝐡": text => text.split('').map(c => '𝐆𝐢𝐟𝐭𝐞𝐝 𝐓𝐞𝐜𝐡').join(''),
-    "𝕲𝖎𝖋𝖙𝖊𝖉 𝕿𝖊𝖈𝖍": text => text.split('').map(c => '𝕲𝖎𝖋𝖙𝖊𝖉 𝕿𝖊𝖈𝖍').join(''),
-    "𝑮𝒊𝒇𝒕𝒆𝒅 𝑻𝒆𝒄𝒉": text => text.split('').map(c => '𝑮𝒊𝒇𝒕𝒆𝒅 𝑻𝒆𝒄𝒉').join(''),
-    "𝓖𝓲𝓯𝓽𝓮𝓭 𝓣𝓮𝓬𝓱": text => text.split('').map(c => '𝓖𝓲𝓯𝓽𝓮𝓭 𝓣𝓮𝓬𝓱').join(''),
-    "𝔾𝕚𝕗𝕥𝕖𝕕 𝕋𝕖𝕔𝕙": text => text.split('').map(c => '𝔾𝕚𝕗𝕥𝕖𝕕 𝕋𝕖𝕜𝕙').join(''),
-    "𝙶𝚒𝚏𝚝𝚎𝚍 𝚃𝚎𝚌𝚑": text => text.split('').map(c => '𝙶𝚒𝚏𝚝𝚎𝚍 𝚃𝚎𝚌𝚑').join('')
+    "Italic Serif": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x1D608 - 0x41)).join(''),
+    "Circled Letters": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x2460)).join(''),
+    "Regional Indicators": text => text.split('').map(c => c === ' ' ? ' ' : `🇬c`).join(”),
+    "Squared Letters": text => text.split(”).map(c => `🄶{c}`).join(''),
+    "Bold Squared Letters": text => text.split('').map(c => `🅶${c}`).join(''),
+    "Full Width": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0xFF21 - 0x41)).join(''),
+    "Small Caps": text => text.split('').map(c => c === ' ' ? ' ' : c.toLowerCase()).join(''),
+    "Fraktur": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x1D56C - 0x41)).join(''),
+    "Bold Fraktur": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x1D5B4 - 0x41)).join(''),
+    "Double Struck": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x1D538 - 0x41)).join(''),
+    "Circled Numbers": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x24EA)).join(''),
+    "Squared Numbers": text => text.split('').map(c => c === ' ' ? ' ' : `🄿${c}`).join(''),
+    "Arabic": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x0600 - 0x41)).join(''),
+    "Cyrillic": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x0400 - 0x41)).join(''),
+    "Greek": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x0370 - 0x41)).join(''),
+    "Hebrew": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x0590 - 0x41)).join(''),
+    "Georgian": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x10A0 - 0x41)).join(''),
+    "Devanagari": text => text.split(”).map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x0900 - 0x41)).join(”),
+    "Thai": text => text.split(”).map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x0E00 - 0x41)).join(”),
+    "Hangul": text => text.split(”).map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0xAC00 - 0x41)).join(”),
+    "Tamil": text => text.split(”).map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x0B80 - 0x41)).join(”),
+    "Chinese": text => text.split(”).map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x4E00 - 0x41)).join(”),
+    "Korean": text => text.split(”).map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0xAC00 - 0x41)).join(”),
+    "Latin": text => text.split(”).map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x1D400 - 0x41)).join(”),
+    "Math Bold": text => text.split(”).map(c => c === ' ' ? ' ' : `𝐵{c}`).join(''),
+    "Math Italic": text => text.split('').map(c => c === ' ' ? ' ' : `𝑖c`).join(”),
+    "Math Bold Italic": text => text.split(”).map(c => c === ' ' ? ' ' : `𝑖𝐵{c}`).join(''),
+    "Math Sans Serif": text => text.split('').map(c => c === ' ' ? ' ' : `𝒾𝒮${c}`).join(''),
+    "Math Sans Serif Bold": text => text.split(”).map(c => c === ' ' ? ' ' : `𝒾𝒮𝗕{c}`).join(''),
+    "Math Double Struck": text => text.split('').map(c => c === ' ' ? ' ' : `𝒾𝒟𝗦c`).join(”),
+    "Math Fraktur": text => text.split(”).map(c => c === ' ' ? ' ' : `𝒾𝒻𝓇{c}`).join('')
 };
 
 // FONT TEXT API
-app.get('/api/tools/font-txt', async (req, res) => {
+app.get('/api/tools/font-txt', (req, res) => {
     const apikey = req.query.apikey; // دریافت کلید API
-    const text = req.query.text; // دریافت متن برای تغییر فونت
+    const text = req.query.text; // دریافت متن برای تبدیل
 
-    // بررسی کلید API
+    // بررسی وجود کلید API
     if (!apikey || !apiKeys[apikey]) {
         return res.status(401).json({
             status: false,
@@ -892,9 +914,9 @@ app.get('/api/tools/font-txt', async (req, res) => {
         });
     }
 
-    const keyData = checkUserLimit(apikey); // بررسی محدودیت مصرف کاربر
+    const keyData = checkUserLimit(apikey); // بررسی محدودیت‌های کاربر
 
-    // بررسی محدودیت مصرف
+    // بررسی استفاده از محدودیت
     if (keyData.used >= keyData.limit) {
         return res.status(403).json({
             status: false,
@@ -910,21 +932,23 @@ app.get('/api/tools/font-txt', async (req, res) => {
         });
     }
 
-    // افزایش مقدار `used` برای کاربر
+    // افزایش مقدار `used` برای کلید و ذخیره‌سازی
     keyData.used += 1;
     saveApiKeys(apiKeys);
 
+    // آماده‌سازی نتیجه
     const result = {
-        type: "font", // نوع داده
-        apikey: apikey, // کلید API
+        type: "font",
+        apikey: apikey,
+        fonts: {}
     };
 
-    // اضافه کردن فونت‌های پیش‌فرض
+    // تبدیل متن به هر فونت
     Object.keys(fontStyles).forEach(fontName => {
-        result[fontName] = fontStyles[fontName](text); // تبدیل متن به هر فونت پیش‌فرض
+        result.fonts[fontName] = fontStyles[fontName](text);
     });
 
-    // ارسال نتیجه
+    // ارسال نتیجه با استفاده از JSON.stringify
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify({
         status: true,
