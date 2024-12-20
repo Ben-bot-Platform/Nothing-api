@@ -940,11 +940,17 @@ app.get('/api/downloader/ytsearch', async (req, res) => {
 });
 //FONT FANCY
 const fontStyles = {
-    Bold: text => text.toUpperCase(),
-    Italic: text => text.split('').map(c => c + '̶').join(''),
-    Fancy: text => text.split('').map(c => '✦' + c + '✦').join(''),
-    "HaBan": text => text.split('').map(c => 'ه' + c + 'ا').join('') // فونت "ها بان"
+    "Ⓖⓘⓕⓣⓔⓓ Ⓣⓔⓒⓗ": text => text.split('').map(c => 'Ⓖⓘⓕⓣⓔⓓ Ⓣⓔⓒⓗ').join(''),
+    "🅖🅘🅕🅣🅔🅓 🅣🅔🅒🅗": text => text.split('').map(c => '🅖🅘🅕🅣🅔🅓 🅣🅔🅒🅗').join(''),
+    "Ｇｉｆｔｅｄ Ｔｅｃｈ": text => text.split('').map(c => 'Ｇｉｆｔｅｄ Ｔｅｃｈ').join(''),
+    "𝐆𝐢𝐟𝐭𝐞𝐝 𝐓𝐞𝐜𝐡": text => text.split('').map(c => '𝐆𝐢𝐟𝐭𝐞𝐝 𝐓𝐞𝐜𝐡').join(''),
+    "𝕲𝖎𝖋𝖙𝖊𝖉 𝕿𝖊𝖈𝖍": text => text.split('').map(c => '𝕲𝖎𝖋𝖙𝖊𝖉 𝕿𝖊𝖈𝖍').join(''),
+    "𝑮𝒊𝒇𝒕𝒆𝒅 𝑻𝒆𝒄𝒉": text => text.split('').map(c => '𝑮𝒊𝒇𝒕𝒆𝒅 𝑻𝒆𝒄𝒉').join(''),
+    "𝓖𝓲𝓯𝓽𝓮𝓭 𝓣𝓮𝓬𝓱": text => text.split('').map(c => '𝓖𝓲𝓯𝓽𝓮𝓭 𝓣𝓮𝓬𝓱').join(''),
+    "𝔾𝕚𝕗𝕥𝕖𝕕 𝕋𝕖𝕔𝕙": text => text.split('').map(c => '𝔾𝕚𝕗𝕥𝕖𝕕 𝕋𝕖𝕜𝕙').join(''),
+    "𝙶𝚒𝚏𝚝𝚎𝚍 𝚃𝚎𝚌𝚑": text => text.split('').map(c => '𝙶𝚒𝚏𝚝𝚎𝚍 𝚃𝚎𝚌𝚑').join('')
 };
+
 // FONT TEXT API
 app.get('/api/tools/font-txt', async (req, res) => {
     const apikey = req.query.apikey; // دریافت کلید API
@@ -989,32 +995,6 @@ app.get('/api/tools/font-txt', async (req, res) => {
     Object.keys(fontStyles).forEach(fontName => {
         result[fontName] = fontStyles[fontName](text); // تبدیل متن به هر فونت پیش‌فرض
     });
-
-    // اضافه کردن فونت‌های ASCII با استفاده از figlet
-    try {
-        const figlet = require('figlet');
-        const fonts = await new Promise((resolve, reject) => {
-            figlet.fonts((err, fontsList) => {
-                if (err) reject(err);
-                else resolve(fontsList);
-            });
-        });
-
-        fonts.slice(0, 50).forEach(fontName => {
-            try {
-                result[fontName] = figlet.textSync(text, { font: fontName }); // تبدیل متن به فونت‌های ASCII
-            } catch (err) {
-                console.log(`Error with font ${fontName}: ${err.message}`);
-            }
-        });
-    } catch (err) {
-        return res.status(500).json({
-            status: false,
-            creator: 'Nothing-Ben',
-            message: 'Error loading fonts',
-            error: err.message
-        });
-    }
 
     // ارسال نتیجه
     res.setHeader('Content-Type', 'application/json');
