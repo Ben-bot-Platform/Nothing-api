@@ -867,94 +867,69 @@ app.get('/api/downloader/ytsearch', async (req, res) => {
     }
 });
 //FONT FANCY
-const fontStyles = {
-    "Italic Serif": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x1D608 - 0x41)).join(''),
-    "Circled Letters": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x2460)).join(''),
-    "Regional Indicators": text => text.split('').map(c => c === ' ' ? ' ' : `🇬${c}`).join(''),
-    "Squared Letters": text => text.split('').map(c => `🄶${c}`).join(''),
-    "Bold Squared Letters": text => text.split('').map(c => `🅶${c}`).join(''),
-    "Full Width": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0xFF21 - 0x41)).join(''),
-    "Small Caps": text => text.split('').map(c => c === ' ' ? ' ' : c.toLowerCase()).join(''),
-    "Fraktur": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x1D56C - 0x41)).join(''),
-    "Bold Fraktur": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x1D5B4 - 0x41)).join(''),
-    "Double Struck": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x1D538 - 0x41)).join(''),
-    "Circled Numbers": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x24EA)).join(''),
-    "Squared Numbers": text => text.split('').map(c => c === ' ' ? ' ' : `🄿${c}`).join(''),
-    "Arabic": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x0600 - 0x41)).join(''),
-    "Cyrillic": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x0400 - 0x41)).join(''),
-    "Greek": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x0370 - 0x41)).join(''),
-    "Hebrew": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x0590 - 0x41)).join(''),
-    "Georgian": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x10A0 - 0x41)).join(''),
-    "Devanagari": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x0900 - 0x41)).join(''),
-    "Thai": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x0E00 - 0x41)).join(''),
-    "Hangul": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0xAC00 - 0x41)).join(''),
-    "Tamil": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x0B80 - 0x41)).join(''),
-    "Chinese": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x4E00 - 0x41)).join(''),
-    "Korean": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0xAC00 - 0x41)).join(''),
-    "Latin": text => text.split('').map(c => c === ' ' ? ' ' : String.fromCharCode(c.charCodeAt(0) + 0x1D400 - 0x41)).join(''),
-    "Math Bold": text => text.split('').map(c => c === ' ' ? ' ' : `𝐵${c}`).join(''),
-    "Math Italic": text => text.split('').map(c => c === ' ' ? ' ' : `𝑖${c}`).join(''),
-    "Math Bold Italic": text => text.split('').map(c => c === ' ' ? ' ' : `𝑖𝐵${c}`).join(''),
-    "Math Sans Serif": text => text.split('').map(c => c === ' ' ? ' ' : `𝒾𝒮${c}`).join(''),
-    "Math Sans Serif Bold": text => text.split('').map(c => c === ' ' ? ' ' : `𝒾𝒮𝗕${c}`).join(''),
-    "Math Double Struck": text => text.split('').map(c => c === ' ' ? ' ' : `𝒾𝒟𝗦${c}`).join(''),
-    "Math Fraktur": text => text.split('').map(c => c === ' ' ? ' ' : `𝒾𝒻𝓇${c}`).join('')
-};
-
-// FONT TEXT API
 app.get('/api/tools/font-txt', (req, res) => {
-    const apikey = req.query.apikey; // دریافت کلید API
-    const text = req.query.text; // دریافت متن برای تبدیل
+    const apikey = req.query.apikey;
+    const text = req.query.text;
 
-    // بررسی وجود کلید API
+    // اعتبارسنجی کلید API
     if (!apikey || !apiKeys[apikey]) {
-        return res.status(401).json({
-            status: false,
-            message: 'Invalid or missing API key.'
-        });
+        return res.status(401).json({ status: false, message: 'Invalid or missing API key.' });
     }
 
-    const keyData = checkUserLimit(apikey); // بررسی محدودیت‌های کاربر
-
-    // بررسی استفاده از محدودیت
+    const keyData = checkUserLimit(apikey);
     if (keyData.used >= keyData.limit) {
-        return res.status(403).json({
-            status: false,
-            message: 'API key usage limit exceeded.'
-        });
+        return res.status(403).json({ status: false, message: 'API key usage limit exceeded.' });
     }
 
-    // بررسی ارسال متن
+    // بررسی متن
     if (!text) {
-        return res.status(400).json({
-            status: false,
-            message: 'No text provided.'
-        });
+        return res.status(400).json({ status: false, message: 'No text provided.' });
     }
 
-    // افزایش مقدار `used` برای کلید و ذخیره‌سازی
+    // افزایش میزان استفاده از کلید
     keyData.used += 1;
     saveApiKeys(apiKeys);
 
-    // آماده‌سازی نتیجه
-    const result = {
-        type: "font",
-        apikey: apikey,
-        fonts: {}
+    // تعریف فونت‌ها
+    const fonts = {
+        "Bold": `𝗛𝗲𝗹𝗹𝗼`.replace(/Hello/gi, text),
+        "Italic": `𝘏𝘦𝘭𝘭𝘰`.replace(/Hello/gi, text),
+        "Underline": `H̲e̲l̲l̲o̲`.replace(/Hello/gi, text),
+        "StrikeThrough": `H̶e̶l̶l̶o̶`.replace(/Hello/gi, text),
+        "Fancy": `ℍ𝕖𝕝𝕝𝕠`.replace(/Hello/gi, text),
+        "Bubble": `Ⓗⓔⓛⓛⓞ`.replace(/Hello/gi, text),
+        "Mirror": `oᏞᏞƎᎻ`.replace(/Hello/gi, text),
+        "SmallCaps": `ʜᴇʟʟᴏ`.replace(/Hello/gi, text),
+        "Square": `🅗🅔🅛🅛🅞`.replace(/Hello/gi, text),
+        "Flip": `oןןǝɥ`.replace(/Hello/gi, text),
+        "Wide": `H̵ ̵e̵ ̵l̵ ̵l̵ ̵o̵`.replace(/Hello/gi, text),
+        "Zalgo": `H͑͊̔͑͝e͆͂̄͌͠l͛͛̽͌̓͐lͩͨ̐ȏͯ̄`.replace(/Hello/gi, text),
+        "DoubleStruck": `𝔥𝔢𝔩𝔩𝔬`.replace(/Hello/gi, text),
+        "Retro": `ℌ𝔢𝔩𝔩𝔬`.replace(/Hello/gi, text),
+        "Tall": `ᕼᗴᒪᒪᝪ`.replace(/Hello/gi, text),
+        "Wave": `H͎e͎l͎l͎o͎`.replace(/Hello/gi, text),
+        "Star": `⭐H⭐e⭐l⭐l⭐o⭐`.replace(/Hello/gi, text),
+        "Heart": `💓H💓e💓l💓l💓o💓`.replace(/Hello/gi, text),
+        "Cloud": `☁H☁e☁l☁l☁o☁`.replace(/Hello/gi, text),
+        "Ice": `❄H❄e❄l❄l❄o❄`.replace(/Hello/gi, text),
+        "Fire": `🔥H🔥e🔥l🔥l🔥o🔥`.replace(/Hello/gi, text),
+        "Laser": `🄷🄴🄻🄻🄾`.replace(/Hello/gi, text),
+        "Bubble2": `🅷🅴🅻🅻🅾`.replace(/Hello/gi, text),
+        "Emoji": `🎉H🎉e🎉l🎉l🎉o🎉`.replace(/Hello/gi, text),
+        "Binary": `01001000 01100101 01101100 01101100 01101111`,
+        "Dots": `H•e•l•l•o`.replace(/Hello/gi, text),
+        "Split": `H—e—l—l—o`.replace(/Hello/gi, text),
+        "Compact": `ꓧꓬꓪꓪꓳ`.replace(/Hello/gi, text),
+        "StarsInside": `H★e★l★l★o`.replace(/Hello/gi, text),
+        // افزودن باقی فونت‌ها تا سقف 100 فونت...
     };
 
-    // تبدیل متن به هر فونت
-    Object.keys(fontStyles).forEach(fontName => {
-        result.fonts[fontName] = fontStyles[fontName](text);
-    });
-
-    // ارسال نتیجه با استفاده از JSON.stringify
-    res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify({
+    // ارسال نتیجه
+    res.json({
         status: true,
         creator: 'Nothing-Ben',
-        result: result
-    }, null, 3)); // مرتب کردن JSON با فاصله 3
+        result: fonts
+    });
 });
 //QR CODE MAKER
 app.get('/api/tools/qrcode', async (req, res) => {
